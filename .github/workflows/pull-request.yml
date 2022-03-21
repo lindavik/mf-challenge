@@ -21,3 +21,6 @@ jobs:
 
       - name: View poetry --help
         run: poetry --help
+
+      - name: Run unit tests
+        run: pytest
