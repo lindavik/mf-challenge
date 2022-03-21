@@ -24,4 +24,5 @@ jobs:
         working-directory: app
 
       - name: Run unit tests
-        run: pytest
+        run: poetry run test
+        working-directory: app
