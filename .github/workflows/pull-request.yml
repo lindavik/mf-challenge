@@ -19,8 +19,8 @@ jobs:
         with:
           poetry-version: 1.1.13
 
-      - name: View poetry --help
-        run: poetry --help
+      - name: Install backend dependencies
+        run: cd app | poetry install
 
       - name: Run unit tests
         run: pytest
