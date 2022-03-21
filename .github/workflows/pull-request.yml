@@ -20,7 +20,8 @@ jobs:
           poetry-version: 1.1.13
 
       - name: Install backend dependencies
-        run: cd app | poetry install
+        run: poetry install
+        working-directory: app
 
       - name: Run unit tests
         run: pytest
