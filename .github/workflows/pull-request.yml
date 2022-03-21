@@ -30,3 +30,7 @@ jobs:
       - name: Run backend formatting
         run: poetry run reformat
         working-directory: app
+
+      - name: Run coverage tests
+        run: coverage run -m pytest
+        working-directory: app
