@@ -1,0 +1,23 @@
+name: Backend Pull Request Checks
+on: pull_request
+
+jobs:
+  backend-pr:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Run image
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.13
+
+      - name: View poetry --help
+        run: poetry --help
