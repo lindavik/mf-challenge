@@ -7,3 +7,7 @@ def test():
 
 def reformat():
     os.system("shed --refactor")
+
+
+def coverage():
+    os.system("coverage run -m pytest")
