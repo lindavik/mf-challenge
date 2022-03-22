@@ -1,6 +1,6 @@
 import pytest
 
-from app.prediction_service import Graph, algo
+from app.prediction_service import Graph, algo, get_success_proba
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
@@ -67,6 +67,24 @@ def test_algo(planet_graph):
     assert route == expected_route
 
 
+def test_get_success_proba(planet_graph):
+    autonomy: int = 6
+    departure = TATOOINE
+    destination = ENDOR
+    countdown = 7
+    expected = 0
+
+    actual = get_success_proba(
+        countdown=countdown,
+        graph=planet_graph,
+        departure=departure,
+        destination=destination,
+        autonomy=autonomy,
+    )
+
+    assert actual == expected
+
+
 @pytest.fixture
 def planet_graph2():
     planetGraph = Graph()
@@ -96,3 +114,57 @@ def test_algo2(planet_graph2):
 
     assert distance == expected_distance
     assert route == expected_route
+
+
+def test_get_success_proba2(planet_graph2):
+    autonomy: int = 6
+    departure = TATOOINE
+    destination = ENDOR
+    countdown = 7
+    expected = 100
+
+    actual = get_success_proba(
+        countdown=countdown,
+        graph=planet_graph2,
+        departure=departure,
+        destination=destination,
+        autonomy=autonomy,
+    )
+
+    assert actual == expected
+
+
+def test_get_success_proba3(planet_graph):
+    autonomy: int = 6
+    departure = TATOOINE
+    destination = ENDOR
+    countdown = 9
+    expected = 100
+
+    actual = get_success_proba(
+        countdown=countdown,
+        graph=planet_graph,
+        departure=departure,
+        destination=destination,
+        autonomy=autonomy,
+    )
+
+    assert actual == expected
+
+
+def test_get_success_proba4(planet_graph):
+    autonomy: int = 6
+    departure = TATOOINE
+    destination = ENDOR
+    countdown = 10
+    expected = 100
+
+    actual = get_success_proba(
+        countdown=countdown,
+        graph=planet_graph,
+        departure=departure,
+        destination=destination,
+        autonomy=autonomy,
+    )
+
+    assert actual == expected

@@ -56,15 +56,13 @@ def algo(graph, departure, destination, autonomy: int):
             for subitem in item_source:
                 path[destination].append(subitem)
 
-    return visited[destination], path[destination]
+    print("Path: " + str(path[destination]))
+    return visited[destination]
 
 
-def get_success_proba(countdown, shortest_path):
+def get_success_proba(countdown, graph, departure, destination, autonomy):
+    shortest_path = algo(graph, departure, destination, autonomy)
     if shortest_path > countdown:
         return 0
     else:
         return 100
-
-
-# print(dijkstra(customGraph, "A"))
-# algo(planetGraph, TATOOINE, ENDOR)
