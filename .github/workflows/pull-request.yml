@@ -1,5 +1,10 @@
 name: Backend Pull Request Checks
-on: pull_request
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
   backend-pr:
@@ -23,6 +28,14 @@ jobs:
         run: poetry install
         working-directory: app
 
-      - name: Run unit tests
+      - name: Run backend unit tests
         run: poetry run test
+        working-directory: app
+
+      - name: Run backend formatting
+        run: poetry run reformat
+        working-directory: app
+
+      - name: Run coverage tests
+        run: poetry run coverage
         working-directory: app
