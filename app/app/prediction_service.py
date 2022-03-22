@@ -18,36 +18,8 @@ class Graph:
         self.distances[(toNode, fromNode)] = distance
 
 
-def dijkstra(graph, initial):
-    visited = {initial: 0}
-    path = defaultdict(list)
-
-    nodes = set(graph.nodes)
-
-    while nodes:
-        minNode = None
-        for node in nodes:
-            if node in visited:
-                if minNode is None:
-                    minNode = node
-                elif visited[node] < visited[minNode]:
-                    minNode = node
-        if minNode is None:
-            break
-
-        nodes.remove(minNode)
-        currentWeight = visited[minNode]
-
-        for edge in graph.edges[minNode]:
-            weight = currentWeight + graph.distances[(minNode, edge)]
-            if edge not in visited or weight < visited[edge]:
-                visited[edge] = weight
-                path[edge].append(minNode)
-
-    return visited, path
-
-
 def algo(graph, departure, destination, autonomy: int):
+
     visited = {departure: 0}
     path = defaultdict(list)
     nodes = set(graph.nodes)
@@ -67,12 +39,31 @@ def algo(graph, departure, destination, autonomy: int):
         current_distance_travelled = visited[minNode]
 
         for edge in graph.edges[minNode]:
-            weight = current_distance_travelled + graph.distances[(minNode, edge)]
-            if edge not in visited or weight < visited[edge]:
-                visited[edge] = weight
+
+            new_distance = current_distance_travelled + graph.distances[(minNode, edge)]
+
+            if new_distance > autonomy:
+                new_distance += 1
+
+            if edge not in visited or new_distance < visited[edge]:
+                visited[edge] = new_distance
+                path[edge] = []
                 path[edge].append(minNode)
 
-    return visited[destination], path
+    while departure not in path[destination]:
+        for item in path[destination]:
+            item_source = path[item]
+            for subitem in item_source:
+                path[destination].append(subitem)
+
+    return visited[destination], path[destination]
+
+
+def get_success_proba(countdown, shortest_path):
+    if shortest_path > countdown:
+        return 0
+    else:
+        return 100
 
 
 # print(dijkstra(customGraph, "A"))

@@ -53,11 +53,42 @@ def test_algo(planet_graph):
     departure = TATOOINE
     destination = ENDOR
 
-    expected_distance = 7
-    expected_route = [HOTH]
+    expected_distance = 8
+    expected_route = [HOTH, TATOOINE]
 
     distance, route = algo(
         graph=planet_graph,
+        departure=departure,
+        destination=destination,
+        autonomy=autonomy,
+    )
+
+    assert distance == expected_distance
+    assert route == expected_route
+
+
+@pytest.fixture
+def planet_graph2():
+    planetGraph = Graph()
+
+    planetGraph.add_node(TATOOINE)
+    planetGraph.add_node(ENDOR)
+
+    planetGraph.add_edge(TATOOINE, ENDOR, 6)
+
+    return planetGraph
+
+
+def test_algo2(planet_graph2):
+    autonomy: int = 6
+    departure = TATOOINE
+    destination = ENDOR
+
+    expected_distance = 6
+    expected_route = [TATOOINE]
+
+    distance, route = algo(
+        graph=planet_graph2,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
