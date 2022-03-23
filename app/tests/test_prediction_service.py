@@ -1,6 +1,6 @@
 import pytest
 
-from app.prediction_service import Graph, algo, get_success_proba
+from app.prediction_service import Graph, algo, calculate_proba, get_success_proba
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
@@ -166,5 +166,20 @@ def test_get_success_proba4(planet_graph):
         destination=destination,
         autonomy=autonomy,
     )
+
+    assert actual == expected
+
+
+@pytest.fixture
+def hunter_schedule():
+    return {HOTH: {6, 7, 8}}
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [(1, 0.1), (2, 0.19), (3, 0.271), (0, 0)],
+)
+def test_calculate_proba(input, expected):
+    actual = calculate_proba(input)
 
     assert actual == expected

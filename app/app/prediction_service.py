@@ -66,3 +66,15 @@ def get_success_proba(countdown, graph, departure, destination, autonomy):
         return 0
     else:
         return 100
+
+
+def calculate_proba(capture_attempt_count: int):
+    result = 0
+
+    if capture_attempt_count == 0:
+        return result
+
+    for i in range(capture_attempt_count):
+        result += (9 ** (i)) / (10 ** (i + 1))
+
+    return result
