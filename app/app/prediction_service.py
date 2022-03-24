@@ -1,28 +1,26 @@
 from collections import defaultdict
 
 
-class Graph:
+class PlanetGraph:
     def __init__(self):
-        self.nodes = set()
-        self.edges = defaultdict(list)
+        self.planets = set()
+        self.routes = defaultdict(list)
         self.distances = {}
 
-    def add_node(self, value):
-        self.nodes.add(value)
+    def add_planet(self, planet_name: str):
+        self.planets.add(planet_name)
 
-    def add_edge(self, fromNode, toNode, distance):
-        self.edges[fromNode].append(toNode)
-        self.edges[toNode].append(fromNode)
-
-        self.distances[(fromNode, toNode)] = distance
-        self.distances[(toNode, fromNode)] = distance
+    def add_route(self, departure_planet: str, destination_planet: str, distance: int):
+        self.routes[departure_planet].append(destination_planet)
+        self.routes[destination_planet].append(departure_planet)
+        self.distances[(departure_planet, destination_planet)] = distance
+        self.distances[(destination_planet, departure_planet)] = distance
 
 
 def get_shortest_path_to_destination(graph, departure, destination, autonomy: int):
-
     visited = {departure: 0}
     path = defaultdict(list)
-    nodes = set(graph.nodes)
+    nodes = set(graph.planets)
 
     while nodes:
         minNode = None
@@ -38,7 +36,7 @@ def get_shortest_path_to_destination(graph, departure, destination, autonomy: in
         nodes.remove(minNode)
         current_distance_travelled = visited[minNode]
 
-        for edge in graph.edges[minNode]:
+        for edge in graph.routes[minNode]:
 
             new_distance = current_distance_travelled + graph.distances[(minNode, edge)]
 
@@ -87,7 +85,19 @@ def get_probability_of_success(
         probability_of_capture: float = get_probability_of_capture(
             capture_attempt_count=capture_attempt_count
         )
-        return int(round(probability_of_capture, 2) * 100)
+        return convert_capture_probability_to_success_rate(
+            probability_of_capture=probability_of_capture
+        )
+
+
+def convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
+    """
+    Converts the probability of capture to the success rate.
+    :param probability_of_capture: the probability of capture (ranging from 0.0 to 1.0)
+    :return: the success rate (ranging from 0 - 100)
+    """
+    probability_of_success: float = 1 - probability_of_capture
+    return int(round(probability_of_success, 2) * 100)
 
 
 def get_probability_of_capture(capture_attempt_count: int) -> float:

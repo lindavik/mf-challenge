@@ -1,7 +1,8 @@
 import pytest
 
 from app.prediction_service import (
-    Graph,
+    PlanetGraph,
+    convert_capture_probability_to_success_rate,
     get_probability_of_capture,
     get_probability_of_success,
     get_shortest_path_to_destination,
@@ -15,30 +16,30 @@ ENDOR = "Endor"
 
 @pytest.fixture
 def planet_graph():
-    planetGraph = Graph()
+    planetGraph = PlanetGraph()
 
-    planetGraph.add_node(TATOOINE)
-    planetGraph.add_node(DAGOBAH)
-    planetGraph.add_node(HOTH)
-    planetGraph.add_node(ENDOR)
+    planetGraph.add_planet(TATOOINE)
+    planetGraph.add_planet(DAGOBAH)
+    planetGraph.add_planet(HOTH)
+    planetGraph.add_planet(ENDOR)
 
-    planetGraph.add_edge(TATOOINE, DAGOBAH, 6)
-    planetGraph.add_edge(ENDOR, DAGOBAH, 4)
-    planetGraph.add_edge(HOTH, DAGOBAH, 1)
-    planetGraph.add_edge(ENDOR, HOTH, 1)
-    planetGraph.add_edge(HOTH, TATOOINE, 6)
+    planetGraph.add_route(TATOOINE, DAGOBAH, 6)
+    planetGraph.add_route(ENDOR, DAGOBAH, 4)
+    planetGraph.add_route(HOTH, DAGOBAH, 1)
+    planetGraph.add_route(ENDOR, HOTH, 1)
+    planetGraph.add_route(HOTH, TATOOINE, 6)
 
     return planetGraph
 
 
 def test_graph(planet_graph):
-    assert planet_graph.edges == {
+    assert planet_graph.routes == {
         TATOOINE: [DAGOBAH, HOTH],
         DAGOBAH: [TATOOINE, ENDOR, HOTH],
         ENDOR: [DAGOBAH, HOTH],
         HOTH: [DAGOBAH, ENDOR, TATOOINE],
     }
-    assert planet_graph.nodes == {TATOOINE, DAGOBAH, ENDOR, HOTH}
+    assert planet_graph.planets == {TATOOINE, DAGOBAH, ENDOR, HOTH}
     assert planet_graph.distances == {
         (TATOOINE, DAGOBAH): 6,
         (DAGOBAH, TATOOINE): 6,
@@ -59,7 +60,6 @@ def test_s(planet_graph):
     destination = ENDOR
 
     expected_distance = 8
-    expected_route = [HOTH, TATOOINE]
     expected_route = {
         TATOOINE: 0,
         HOTH: 6,
@@ -96,12 +96,12 @@ def test_get_success_proba(planet_graph):
 
 @pytest.fixture
 def planet_graph2():
-    planetGraph = Graph()
+    planetGraph = PlanetGraph()
 
-    planetGraph.add_node(TATOOINE)
-    planetGraph.add_node(ENDOR)
+    planetGraph.add_planet(TATOOINE)
+    planetGraph.add_planet(ENDOR)
 
-    planetGraph.add_edge(TATOOINE, ENDOR, 6)
+    planetGraph.add_route(TATOOINE, ENDOR, 6)
 
     return planetGraph
 
@@ -190,5 +190,15 @@ def hunter_schedule():
 )
 def test_get_probability_of_capture(input, expected):
     actual = get_probability_of_capture(input)
+
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [(0.231, 77), (0, 100), (1.0, 0), (0.19, 81), (0.11789, 88)],
+)
+def test_convert_capture_probability_to_success_rate(input, expected):
+    actual = convert_capture_probability_to_success_rate(input)
 
     assert actual == expected
