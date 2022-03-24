@@ -18,7 +18,7 @@ class Graph:
         self.distances[(toNode, fromNode)] = distance
 
 
-def algo(graph, departure, destination, autonomy: int):
+def get_shortest_path_to_destination(graph, departure, destination, autonomy: int):
 
     visited = {departure: 0}
     path = defaultdict(list)
@@ -56,20 +56,47 @@ def algo(graph, departure, destination, autonomy: int):
             for subitem in item_source:
                 path[destination].append(subitem)
 
+    earliest_arrival_map = {}
+    for item in path[destination]:
+        earliest_arrival_map[item] = visited[item]
+
     print("Path: " + str(path[destination]))
-    return visited[destination]
+    return visited[destination], earliest_arrival_map
 
 
-def get_success_proba(countdown, graph, departure, destination, autonomy):
-    shortest_path = algo(graph, departure, destination, autonomy)
+def get_probability_of_success(
+    countdown, graph, departure, destination, autonomy
+) -> int:
+    """
+    Calculates the probability of success, returns a number ranging from 0 to 100.
+    :param countdown:
+    :param graph:
+    :param departure:
+    :param destination:
+    :param autonomy:
+    :return: the probability of success (ranging from 0 - 100)
+    """
+    shortest_path = get_shortest_path_to_destination(
+        graph, departure, destination, autonomy
+    )
     if shortest_path > countdown:
         return 0
     else:
-        return 100
+        # travel_budget = countdown - shortest_path
+        capture_attempt_count = 0
+        probability_of_capture: float = get_probability_of_capture(
+            capture_attempt_count=capture_attempt_count
+        )
+        return int(round(probability_of_capture, 2) * 100)
 
 
-def calculate_proba(capture_attempt_count: int):
-    result = 0
+def get_probability_of_capture(capture_attempt_count: int) -> float:
+    """
+    Calculates the probability of getting captured depending on the number of capture attempts.
+    :param capture_attempt_count: number of capture attempts
+    :return: the probability of getting captured
+    """
+    result: float = 0.0
 
     if capture_attempt_count == 0:
         return result
