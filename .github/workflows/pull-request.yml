@@ -1,6 +1,6 @@
 name: Backend Pull Request Checks
 on:
-  push:
+#  push:
   pull_request:
     branches:
       - main
