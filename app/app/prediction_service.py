@@ -17,10 +17,21 @@ class PlanetGraph:
         self.distances[(destination_planet, departure_planet)] = distance
 
 
-def get_shortest_path_to_destination(graph, departure, destination, autonomy: int):
+def get_shortest_path_to_destination(
+    planet_graph: PlanetGraph, departure: str, destination: str, autonomy: int
+):
+    """
+    Determines the shortest path from the departure planet to the destination planet.
+    Disclaimer: provides with only one route, if there are two equally long shortest routes, only one will be returned.
+    :param planet_graph:
+    :param departure:
+    :param destination:
+    :param autonomy:
+    :return:
+    """
     visited = {departure: 0}
     path = defaultdict(list)
-    nodes = set(graph.planets)
+    nodes = set(planet_graph.planets)
 
     while nodes:
         minNode = None
@@ -36,9 +47,11 @@ def get_shortest_path_to_destination(graph, departure, destination, autonomy: in
         nodes.remove(minNode)
         current_distance_travelled = visited[minNode]
 
-        for edge in graph.routes[minNode]:
+        for edge in planet_graph.routes[minNode]:
 
-            new_distance = current_distance_travelled + graph.distances[(minNode, edge)]
+            new_distance = (
+                current_distance_travelled + planet_graph.distances[(minNode, edge)]
+            )
 
             if new_distance > autonomy:
                 new_distance += 1
@@ -58,8 +71,11 @@ def get_shortest_path_to_destination(graph, departure, destination, autonomy: in
     for item in path[destination]:
         earliest_arrival_map[item] = visited[item]
 
-    print("Path: " + str(path[destination]))
-    return visited[destination], earliest_arrival_map
+    earliest_arrival_map[destination] = visited[destination]
+
+    print("Path: " + str(path[destination]))  # todo remove
+
+    return earliest_arrival_map
 
 
 def get_probability_of_success(

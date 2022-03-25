@@ -24,9 +24,6 @@ jobs:
         with:
           poetry-version: 1.1.13
 
-      - name: Install pytest GitHyb plugin
-        run: pip install pytest-github-actions-annotate-failures
-
       - name: Install backend dependencies
         run: poetry install
         working-directory: app
@@ -34,6 +31,8 @@ jobs:
       - name: Run backend unit tests
         run: poetry run test
         working-directory: app
+        env:
+          PYTEST_RUN_PATH: tests
 
       - name: Run backend formatting
         run: poetry run reformat

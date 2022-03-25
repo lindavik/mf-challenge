@@ -32,7 +32,7 @@ def planet_graph():
     return planetGraph
 
 
-def test_graph(planet_graph):
+def test_planet_graph(planet_graph):
     assert planet_graph.routes == {
         TATOOINE: [DAGOBAH, HOTH],
         DAGOBAH: [TATOOINE, ENDOR, HOTH],
@@ -54,7 +54,7 @@ def test_graph(planet_graph):
     }
 
 
-def test_s(planet_graph):
+def test_get_shortest_path_to_destination(planet_graph):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
@@ -66,7 +66,7 @@ def test_s(planet_graph):
     }
 
     distance, route = get_shortest_path_to_destination(
-        graph=planet_graph,
+        planet_graph=planet_graph,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
@@ -115,7 +115,7 @@ def test_algo2(planet_graph2):
     expected_route = [TATOOINE]
 
     distance = get_shortest_path_to_destination(
-        graph=planet_graph2,
+        planet_graph=planet_graph2,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
