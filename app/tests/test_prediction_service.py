@@ -186,3 +186,7 @@ def test__get_capture_attempt_count_without_capture():
     )
 
     assert actual == expected
+
+
+def test_fail():
+    assert 1 == 2
