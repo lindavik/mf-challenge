@@ -23,4 +23,3 @@ This project uses [Pre-Commit](https://pre-commit.com/#intro) for identifying si
 To use the hooks available:
 - you have to [install](https://pre-commit.com/#install) `pre-commit` locally;
 - you have to run `pre-commit install` to install pre-commit into your git hooks. Once executed, pre-commit will run on every commit.
-- specifically for this project to r

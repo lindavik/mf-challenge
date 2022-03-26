@@ -30,9 +30,9 @@ jobs:
 
       - name: Run backend unit tests
         run: poetry run test
-        working-directory: app
+#        working-directory: app
         env:
-          PYTEST_RUN_PATH: tests
+          PYTEST_RUN_PATH: app
 
       - name: Run backend formatting
         run: poetry run reformat
