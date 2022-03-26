@@ -28,6 +28,9 @@ jobs:
       - name: Run tests
         run: pytest
 
+      - name: Get coverage
+        run: pytest --cov=app --cov-fail-under=95 tests
+
 #      - name: Run image
 #        uses: abatilo/actions-poetry@v2.0.0
 #        with:
