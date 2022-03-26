@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Dict
 
 
 class PlanetGraph:
@@ -67,8 +68,10 @@ def get_shortest_path_to_destination(
             for subitem in item_source:
                 path[destination].append(subitem)
 
+    shortest_path = path[destination]
+
     earliest_arrival_map = {}
-    for item in path[destination]:
+    for item in shortest_path:
         earliest_arrival_map[item] = visited[item]
     earliest_arrival_map[destination] = visited[destination]
 
@@ -76,7 +79,7 @@ def get_shortest_path_to_destination(
 
 
 def get_probability_of_success(
-    countdown, graph, departure, destination, autonomy
+    countdown, graph, departure, destination, autonomy, hunter_schedule
 ) -> int:
     """
     Calculates the probability of success, returns a number ranging from 0 to 100.
@@ -95,16 +98,19 @@ def get_probability_of_success(
         return 0
     else:
         # travel_budget = countdown - shortest_path
-        capture_attempt_count = 0
-        probability_of_capture: float = get_probability_of_capture(
+        capture_attempt_count = _get_capture_attempt_count(
+            shortest_path=shortest_path, hunter_schedule=hunter_schedule
+        )
+
+        probability_of_capture: float = _get_probability_of_capture(
             capture_attempt_count=capture_attempt_count
         )
-        return convert_capture_probability_to_success_rate(
+        return _convert_capture_probability_to_success_rate(
             probability_of_capture=probability_of_capture
         )
 
 
-def convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
+def _convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
     """
     Converts the probability of capture to the success rate.
     :param probability_of_capture: the probability of capture (ranging from 0.0 to 1.0)
@@ -114,7 +120,7 @@ def convert_capture_probability_to_success_rate(probability_of_capture: float) -
     return int(round(probability_of_success, 2) * 100)
 
 
-def get_probability_of_capture(capture_attempt_count: int) -> float:
+def _get_probability_of_capture(capture_attempt_count: int) -> float:
     """
     Calculates the probability of getting captured depending on the number of capture attempts.
     :param capture_attempt_count: number of capture attempts
@@ -129,3 +135,16 @@ def get_probability_of_capture(capture_attempt_count: int) -> float:
         result += (9 ** (i)) / (10 ** (i + 1))
 
     return result
+
+
+def _get_capture_attempt_count(shortest_path: Dict, hunter_schedule: Dict):
+    capture_attempts: int = 0
+    for planet in shortest_path.items():
+        planet_name = planet[0]
+        arrival_day = planet[1]
+        if (
+            planet_name in hunter_schedule.keys()
+            and arrival_day in hunter_schedule[planet_name]
+        ):
+            capture_attempts += 1
+    return capture_attempts

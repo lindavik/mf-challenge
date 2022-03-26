@@ -2,8 +2,9 @@ import pytest
 
 from app.prediction_service import (
     PlanetGraph,
-    convert_capture_probability_to_success_rate,
-    get_probability_of_capture,
+    _convert_capture_probability_to_success_rate,
+    _get_capture_attempt_count,
+    _get_probability_of_capture,
     get_probability_of_success,
     get_shortest_path_to_destination,
 )
@@ -30,6 +31,11 @@ def planet_graph_extended():
     planet_graph.add_route(HOTH, TATOOINE, 6)
 
     return planet_graph
+
+
+@pytest.fixture
+def hunter_schedule():
+    return {HOTH: {6, 7, 8}}
 
 
 def test_planet_graph(planet_graph_extended):
@@ -71,7 +77,7 @@ def test_get_shortest_path_to_destination_extended(planet_graph_extended):
     assert route == expected_route
 
 
-def test_get_success_proba(planet_graph_extended):
+def test_get_success_proba(planet_graph_extended, hunter_schedule):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
@@ -84,6 +90,7 @@ def test_get_success_proba(planet_graph_extended):
         departure=departure,
         destination=destination,
         autonomy=autonomy,
+        hunter_schedule=hunter_schedule,
     )
 
     assert actual == expected
@@ -117,9 +124,11 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
 
 @pytest.mark.parametrize(
     "input_countdown, expected",
-    [(10, 100), (9, 100), (7, 0), (6, 0)],
+    [(10, 90), (9, 90), (7, 0), (6, 0)],
 )
-def test_get_probability_of_success(planet_graph_extended, input_countdown, expected):
+def test_get_probability_of_success(
+    planet_graph_extended, input_countdown, expected, hunter_schedule
+):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
@@ -130,14 +139,10 @@ def test_get_probability_of_success(planet_graph_extended, input_countdown, expe
         departure=departure,
         destination=destination,
         autonomy=autonomy,
+        hunter_schedule=hunter_schedule,
     )
 
     assert actual == expected
-
-
-@pytest.fixture
-def hunter_schedule():
-    return {HOTH: {6, 7, 8}}
 
 
 @pytest.mark.parametrize(
@@ -145,7 +150,7 @@ def hunter_schedule():
     [(1, 0.1), (2, 0.19), (3, 0.271), (0, 0)],
 )
 def test_get_probability_of_capture(input, expected):
-    actual = get_probability_of_capture(input)
+    actual = _get_probability_of_capture(input)
 
     assert actual == expected
 
@@ -155,6 +160,29 @@ def test_get_probability_of_capture(input, expected):
     [(0.231, 77), (0, 100), (1.0, 0), (0.19, 81), (0.11789, 88)],
 )
 def test_convert_capture_probability_to_success_rate(input, expected):
-    actual = convert_capture_probability_to_success_rate(input)
+    actual = _convert_capture_probability_to_success_rate(input)
+
+    assert actual == expected
+
+
+def test__get_capture_attempt_count_with_capture(hunter_schedule):
+    shortest_path = {TATOOINE: 0, HOTH: 7, ENDOR: 9}
+    expected: int = 1
+
+    actual = _get_capture_attempt_count(
+        shortest_path=shortest_path, hunter_schedule=hunter_schedule
+    )
+
+    assert actual == expected
+
+
+def test__get_capture_attempt_count_without_capture():
+    hunter_schedule = {TATOOINE: {6, 7, 8}}
+    shortest_path = {TATOOINE: 0, HOTH: 7, ENDOR: 9}
+    expected: int = 0
+
+    actual = _get_capture_attempt_count(
+        shortest_path=shortest_path, hunter_schedule=hunter_schedule
+    )
 
     assert actual == expected
