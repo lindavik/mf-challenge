@@ -15,32 +15,32 @@ ENDOR = "Endor"
 
 
 @pytest.fixture
-def planet_graph():
-    planetGraph = PlanetGraph()
+def planet_graph_extended():
+    planet_graph = PlanetGraph()
 
-    planetGraph.add_planet(TATOOINE)
-    planetGraph.add_planet(DAGOBAH)
-    planetGraph.add_planet(HOTH)
-    planetGraph.add_planet(ENDOR)
+    planet_graph.add_planet(TATOOINE)
+    planet_graph.add_planet(DAGOBAH)
+    planet_graph.add_planet(HOTH)
+    planet_graph.add_planet(ENDOR)
 
-    planetGraph.add_route(TATOOINE, DAGOBAH, 6)
-    planetGraph.add_route(ENDOR, DAGOBAH, 4)
-    planetGraph.add_route(HOTH, DAGOBAH, 1)
-    planetGraph.add_route(ENDOR, HOTH, 1)
-    planetGraph.add_route(HOTH, TATOOINE, 6)
+    planet_graph.add_route(TATOOINE, DAGOBAH, 6)
+    planet_graph.add_route(ENDOR, DAGOBAH, 4)
+    planet_graph.add_route(HOTH, DAGOBAH, 1)
+    planet_graph.add_route(ENDOR, HOTH, 1)
+    planet_graph.add_route(HOTH, TATOOINE, 6)
 
-    return planetGraph
+    return planet_graph
 
 
-def test_planet_graph(planet_graph):
-    assert planet_graph.routes == {
+def test_planet_graph(planet_graph_extended):
+    assert planet_graph_extended.routes == {
         TATOOINE: [DAGOBAH, HOTH],
         DAGOBAH: [TATOOINE, ENDOR, HOTH],
         ENDOR: [DAGOBAH, HOTH],
         HOTH: [DAGOBAH, ENDOR, TATOOINE],
     }
-    assert planet_graph.planets == {TATOOINE, DAGOBAH, ENDOR, HOTH}
-    assert planet_graph.distances == {
+    assert planet_graph_extended.planets == {TATOOINE, DAGOBAH, ENDOR, HOTH}
+    assert planet_graph_extended.distances == {
         (TATOOINE, DAGOBAH): 6,
         (DAGOBAH, TATOOINE): 6,
         (DAGOBAH, ENDOR): 4,
@@ -54,29 +54,24 @@ def test_planet_graph(planet_graph):
     }
 
 
-def test_get_shortest_path_to_destination(planet_graph):
+def test_get_shortest_path_to_destination_extended(planet_graph_extended):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
 
-    expected_distance = 8
-    expected_route = {
-        TATOOINE: 0,
-        HOTH: 6,
-    }
+    expected_route = {TATOOINE: 0, HOTH: 6, ENDOR: 8}
 
-    distance, route = get_shortest_path_to_destination(
-        planet_graph=planet_graph,
+    route = get_shortest_path_to_destination(
+        planet_graph=planet_graph_extended,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
     )
 
-    assert distance == expected_distance
     assert route == expected_route
 
 
-def test_get_success_proba(planet_graph):
+def test_get_success_proba(planet_graph_extended):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
@@ -85,7 +80,7 @@ def test_get_success_proba(planet_graph):
 
     actual = get_probability_of_success(
         countdown=countdown,
-        graph=planet_graph,
+        graph=planet_graph_extended,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
@@ -95,82 +90,43 @@ def test_get_success_proba(planet_graph):
 
 
 @pytest.fixture
-def planet_graph2():
-    planetGraph = PlanetGraph()
-
-    planetGraph.add_planet(TATOOINE)
-    planetGraph.add_planet(ENDOR)
-
-    planetGraph.add_route(TATOOINE, ENDOR, 6)
-
-    return planetGraph
+def planet_graph_minimal():
+    planet_graph = PlanetGraph()
+    planet_graph.add_planet(TATOOINE)
+    planet_graph.add_planet(ENDOR)
+    planet_graph.add_route(TATOOINE, ENDOR, 6)
+    return planet_graph
 
 
-def test_algo2(planet_graph2):
+def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
 
-    expected_distance = 6
-    expected_route = [TATOOINE]
+    expected_route = {TATOOINE: 0, ENDOR: 6}
 
-    distance = get_shortest_path_to_destination(
-        planet_graph=planet_graph2,
+    route = get_shortest_path_to_destination(
+        planet_graph=planet_graph_minimal,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
     )
 
-    assert distance == expected_distance
-    # assert route == expected_route
+    assert route == expected_route
 
 
-def test_get_probability_of_success2(planet_graph2):
+@pytest.mark.parametrize(
+    "input_countdown, expected",
+    [(10, 100), (9, 100), (7, 0), (6, 0)],
+)
+def test_get_probability_of_success(planet_graph_extended, input_countdown, expected):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
-    countdown = 7
-    expected = 100
 
     actual = get_probability_of_success(
-        countdown=countdown,
-        graph=planet_graph2,
-        departure=departure,
-        destination=destination,
-        autonomy=autonomy,
-    )
-
-    assert actual == expected
-
-
-def test_get_probability_of_success3(planet_graph):
-    autonomy: int = 6
-    departure = TATOOINE
-    destination = ENDOR
-    countdown = 9
-    expected = 100
-
-    actual = get_probability_of_success(
-        countdown=countdown,
-        graph=planet_graph,
-        departure=departure,
-        destination=destination,
-        autonomy=autonomy,
-    )
-
-    assert actual == expected
-
-
-def test_get_probability_of_success4(planet_graph):
-    autonomy: int = 6
-    departure = TATOOINE
-    destination = ENDOR
-    countdown = 10
-    expected = 100
-
-    actual = get_probability_of_success(
-        countdown=countdown,
-        graph=planet_graph,
+        countdown=input_countdown,
+        graph=planet_graph_extended,
         departure=departure,
         destination=destination,
         autonomy=autonomy,

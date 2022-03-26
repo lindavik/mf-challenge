@@ -70,10 +70,7 @@ def get_shortest_path_to_destination(
     earliest_arrival_map = {}
     for item in path[destination]:
         earliest_arrival_map[item] = visited[item]
-
     earliest_arrival_map[destination] = visited[destination]
-
-    print("Path: " + str(path[destination]))  # todo remove
 
     return earliest_arrival_map
 
@@ -93,7 +90,8 @@ def get_probability_of_success(
     shortest_path = get_shortest_path_to_destination(
         graph, departure, destination, autonomy
     )
-    if shortest_path > countdown:
+    earliest_arrival_day = shortest_path[destination]
+    if earliest_arrival_day > countdown:
         return 0
     else:
         # travel_budget = countdown - shortest_path
