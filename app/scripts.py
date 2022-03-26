@@ -10,4 +10,4 @@ def reformat():
 
 
 def coverage():
-    os.system("pytest --cov=app tests")
+    os.system("pytest --cov=app --cov-fail-under=95 tests")
