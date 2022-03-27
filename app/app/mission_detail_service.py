@@ -1,30 +1,13 @@
-   def parse_falcon_input(path_to_file: str) -> MissionDetails:
-        with open(path_to_file) as json_file:
-            data = json.load(json_file)
+from typing import Dict
 
-        try:
-            details = MissionDetails(autonomy=data["autonomy"],
-                                     departure=data["departure"],
-                                     arrival=data["arrival"])
-            return details
-        except KeyError:
-            raise MissingMissionDetailsError()
 
 class MissionDetails(object):
+
     def __init__(self, autonomy: int, departure: str, arrival: str):
         self.autonomy = autonomy
         self.departure = departure
         self.arrival = arrival
         # self.routes = dict()
-
-    @property
-    def autonomy(self):
-        return self._autonomy
-
-    @autonomy.setter
-    def autonomy(self, autonomy):
-        if not (autonomy > 0): raise Exception("autonomy must be a greater than 0")
-        self._autonomy = autonomy
 
     def __eq__(self, other):
         """Overrides the default implementation"""
@@ -36,27 +19,19 @@ class MissionDetails(object):
         return False
 
 
-class MissingMissionDetailsError(Exception):
-    """Exception raised when Millennium Falcon mission input file is missing required details.
+class MissionConverter:
 
-    Attributes:
-        message -- explanation of the error
-    """
+    @staticmethod
+    def get_mission_details(details: Dict) -> MissionDetails:
+        autonomy = MissionConverter._get_field(details=details, field_name="autonomy")
+        if not (autonomy > 0): raise Exception("autonomy must be a greater than 0")
+        departure = MissionConverter._get_field(details=details, field_name="departure")
+        arrival = MissionConverter._get_field(details=details, field_name="arrival")
 
-    def __init__(self, message="Missing details in mission detail input file. "
-                               "Required fields are: autonomy, departure, arrival and route_db"):
-        self.message = message
-        super().__init__(self.message)
+        return MissionDetails(autonomy=autonomy, departure=departure, arrival=arrival)
 
-
-def parse_falcon_input(path_to_file: str) -> MissionDetails:
-    with open(path_to_file) as json_file:
-        data = json.load(json_file)
-
-    try:
-        details = MissionDetails(autonomy=data["autonomy"],
-                                 departure=data["departure"],
-                                 arrival=data["arrival"])
-        return details
-    except KeyError:
-        raise MissingMissionDetailsError()
+    @staticmethod
+    def _get_field(details: Dict, field_name: str):
+        field = details.get(field_name)
+        if not field: raise Exception(f"{field} field must be provided")
+        return field

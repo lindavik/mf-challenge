@@ -1,4 +1,3 @@
-from app.file_reader import FileReader
 import logging
 logging.getLogger().addHandler(logging.StreamHandler())
 
