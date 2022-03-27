@@ -2,7 +2,7 @@ import os
 
 
 def test():
-    os.system("pytest")
+    os.system("python -m pytest")
 
 
 def reformat():
