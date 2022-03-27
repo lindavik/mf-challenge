@@ -54,6 +54,7 @@ def get_shortest_path_to_destination(
                 current_distance_travelled + planet_graph.distances[(minNode, edge)]
             )
 
+            #todo fix: incorrect logic
             if new_distance > autonomy:
                 new_distance += 1
 
