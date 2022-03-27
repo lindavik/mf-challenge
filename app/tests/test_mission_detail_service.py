@@ -26,6 +26,25 @@ def test_get_mission_details(complete_details):
     assert actual == expected
 
 
+def test_get_mission_details_with_unknown_fields():
+    details = {
+        "autonomy": 6,
+        "departure": "Tatooine",
+        "arrival": "Endor",
+        "routes_db": "universe.db",
+        "should_not_be_here": "nope"
+    }
+
+    expected = MissionDetails(autonomy=6,
+                            departure="Tatooine",
+                            arrival="Endor",
+                            routes="universe.db")
+
+    actual = MissionConverter.get_mission_details(details)
+
+    assert actual == expected
+
+
 def test_get_mission_details_missing_required_details():
     with pytest.raises(Exception):
         details = {
