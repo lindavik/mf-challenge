@@ -30,3 +30,4 @@ jobs:
 
       - name: Get coverage
         run: pytest --cov=app --cov-fail-under=95 tests
+        working-directory: app
