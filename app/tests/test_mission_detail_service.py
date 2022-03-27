@@ -18,7 +18,8 @@ def complete_details():
 def test_get_mission_details(complete_details):
     expected = MissionDetails(autonomy=6,
                             departure="Tatooine",
-                            arrival="Endor")
+                            arrival="Endor",
+                            routes="universe.db")
 
     actual = MissionConverter.get_mission_details(complete_details)
 
