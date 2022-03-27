@@ -26,7 +26,10 @@ class MissionConverter:
     @staticmethod
     def get_mission_details(details: Dict) -> MissionDetails:
         autonomy = MissionConverter._get_field(details=details, field_name="autonomy")
-        if not (autonomy > 0):
+        if not isinstance(autonomy, int):
+            logging.exception(f"autonomy must be an int; however, was: {type(autonomy)}")
+            raise Exception("autonomy must be an integer")
+        elif not (autonomy > 0):
             logging.exception(f"autonomy must be a greater than 0; however, was: {autonomy}")
             raise Exception("autonomy must be a greater than 0")
         departure = MissionConverter._get_field(details=details, field_name="departure")
