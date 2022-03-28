@@ -1,7 +1,7 @@
 import os
 
 from app.file_reader import FileReader
-from app.mission_detail_service import MissionConverter, MissionDetails
+from app.converters import MissionConverter, MissionDetails
 
 
 # {

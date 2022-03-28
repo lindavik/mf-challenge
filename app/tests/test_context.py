@@ -1,7 +1,7 @@
 import pytest
 
 from app.context import ContextLoader
-from app.mission_detail_service import MissionDetails, PlanetGraph
+from app.converters import MissionDetails, PlanetGraph
 from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH
 
 

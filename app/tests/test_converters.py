@@ -2,8 +2,8 @@ from typing import Dict
 
 import pytest
 
-from app.mission_detail_service import MissionDetails, MissionConverter, PlanetGraph
-from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH, planet_graph
+from app.converters import MissionDetails, MissionConverter, InterceptedDataConverter, InterceptedData
+from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH
 
 
 def test_get_mission_details(planet_graph):
@@ -76,7 +76,7 @@ def test_get_mission_details_invalid_autonomy():
             "departure": "Tatooine",
             "routes_db": "universe.db"
         }
-        MissionConverter.map_to_mission_details(details, details)
+        MissionConverter.map_to_mission_details(details, directory)
 
 
 def test_planet_graph(planet_graph):
@@ -99,3 +99,41 @@ def test_planet_graph(planet_graph):
         (TATOOINE, HOTH): 6,
         (HOTH, TATOOINE): 6,
     }
+
+
+def test_map_to_intercepted_data():
+    bounty_hunter_schedule = {
+        HOTH: {6, 7, 8},
+        ENDOR: {9}
+    }
+    raw_data = {
+        "countdown": 7,
+        "bounty_hunters": [
+            {"planet": "Hoth", "day": 6},
+            {"planet": "Hoth", "day": 7},
+            {"planet": "Hoth", "day": 8},
+            {"planet": "Endor", "day": 9}
+        ]
+    }
+    expected = InterceptedData(countdown=7, bounty_hunter_schedule=bounty_hunter_schedule)
+
+    actual = InterceptedDataConverter.map_to_intercepted_data(raw_data=raw_data)
+
+    assert actual == expected
+
+
+def test_process_schedule():
+    raw_schedule = [
+        {"planet": "Hoth", "day": 6},
+        {"planet": "Hoth", "day": 7},
+        {"planet": "Hoth", "day": 8},
+        {"planet": "Endor", "day": 9}
+    ]
+    expected = {
+        HOTH: {6, 7, 8},
+        ENDOR: {9}
+    }
+
+    actual = InterceptedDataConverter._process_schedule(raw_schedule=raw_schedule)
+
+    assert actual == expected

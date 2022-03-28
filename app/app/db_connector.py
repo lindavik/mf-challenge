@@ -8,7 +8,6 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 
 class DBConnector:
-
     @staticmethod
     def _create_connection(db_file: str):
         """Creates a database connection to the SQLite database

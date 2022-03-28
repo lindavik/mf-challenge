@@ -1,6 +1,6 @@
 import pytest
 
-from app.mission_detail_service import PlanetGraph
+from app.converters import PlanetGraph
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
