@@ -7,8 +7,9 @@ from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
 from app.context import ContextLoader
-from app.mission import Mission
 from fastapi import FastAPI
+
+from app.prediction_service import PredictionService
 
 logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -22,14 +23,14 @@ app = FastAPI(
     description=description
 )
 
-mission: Mission = None
+prediction_service: PredictionService = None
 
 
 @app.on_event("startup")
 async def startup_event():
     mission_details_file_path: str = os.path.abspath("./../../inputs/millennium-falcon.json")
     mission_details = ContextLoader.load_mission_details(file_path=mission_details_file_path)
-    mission = Mission(mission_details=mission_details)
+    # mission = Mission(mission_details=mission_details)
     use_default_intercepted_data = False
     if use_default_intercepted_data:
         intercepted_data_file: str = ""  # todo populate with args
