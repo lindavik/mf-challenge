@@ -8,7 +8,7 @@ from app.prediction_service import (
     get_probability_of_success,
     _get_shortest_path_to_destination,
 )
-from tests.shared_test_utils import HOTH, TATOOINE, ENDOR, planet_graph
+from tests.shared_test_utils import HOTH, TATOOINE, ENDOR, planet_graph, DAGOBAH
 
 
 @pytest.fixture
@@ -144,20 +144,20 @@ def test__get_capture_attempt_count_without_capture():
     assert actual == expected
 
 
-@pytest.fixture
-def planet_graph_extended_v2():
-    planet_graph = PlanetGraph()
-
-    planet_graph.add_planet(TATOOINE)
-    planet_graph.add_planet(DAGOBAH)
-    planet_graph.add_planet(HOTH)
-    planet_graph.add_planet(ENDOR)
-
-    planet_graph.add_route(TATOOINE, DAGOBAH,6)
-    planet_graph.add_route(DAGOBAH, HOTH, 4)
-    planet_graph.add_route(HOTH, ENDOR, 2)
-
-    return planet_graph
+# @pytest.fixture
+# def planet_graph_extended_v2():
+#     planet_graph = PlanetGraph()
+#
+#     planet_graph.add_planet(TATOOINE)
+#     planet_graph.add_planet(DAGOBAH)
+#     planet_graph.add_planet(HOTH)
+#     planet_graph.add_planet(ENDOR)
+#
+#     planet_graph.add_route(TATOOINE, DAGOBAH,6)
+#     planet_graph.add_route(DAGOBAH, HOTH, 4)
+#     planet_graph.add_route(HOTH, ENDOR, 2)
+#
+#     return planet_graph
 
 
 # def test_get_shortest_path_to_destination_extended_v2(planet_graph_extended_v2):
