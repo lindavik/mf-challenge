@@ -26,6 +26,6 @@ def test_load_intercepted_data(planet_graph):
     expected = InterceptedData(countdown=6,
                                bounty_hunter_schedule=expected_schedule)
 
-    actual: InterceptedData = ContextLoader.load_intercepted_data(file_path=file_path)
+    actual: InterceptedData = ContextLoader.load_intercepted_data_from_file(file_path=file_path)
 
     assert actual == expected

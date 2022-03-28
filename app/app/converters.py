@@ -28,11 +28,11 @@ class PlanetGraph(object):
 
 
 class MissionDetails(object):
-    def __init__(self, autonomy: int, departure: str, arrival: str, routes):
+    def __init__(self, autonomy: int, departure: str, arrival: str, routes: PlanetGraph):
         self.autonomy = autonomy
         self.departure = departure
         self.arrival = arrival
-        self.routes = routes
+        self.routes: PlanetGraph = routes
 
     def __eq__(self, other):
         """Overrides the default implementation"""
