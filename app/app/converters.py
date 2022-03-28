@@ -11,12 +11,9 @@ class PlanetGraph(object):
         self.routes = defaultdict(list)
         self.distances = {}
 
-    def add_planet(self, planet_name: str):
-        self.planets.add(planet_name)
-
     def add_route(self, departure_planet: str, destination_planet: str, distance: int):
-        self.add_planet(departure_planet)
-        self.add_planet(destination_planet)
+        self.planets.add(departure_planet)
+        self.planets.add(destination_planet)
         self.routes[departure_planet].append(destination_planet)
         self.routes[destination_planet].append(departure_planet)
         self.distances[(departure_planet, destination_planet)] = distance

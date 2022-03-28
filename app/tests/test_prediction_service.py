@@ -8,7 +8,7 @@ from app.prediction_service import (
     get_probability_of_success,
     _get_shortest_path_to_destination,
 )
-from tests.shared_test_utils import HOTH, TATOOINE, ENDOR, planet_graph, DAGOBAH
+from tests.shared_test_utils import HOTH, TATOOINE, ENDOR, planet_graph
 
 
 @pytest.fixture
@@ -55,8 +55,6 @@ def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
 @pytest.fixture
 def planet_graph_minimal():
     planet_graph = PlanetGraph()
-    planet_graph.add_planet(TATOOINE)
-    planet_graph.add_planet(ENDOR)
     planet_graph.add_route(TATOOINE, ENDOR, 6)
     return planet_graph
 
@@ -147,11 +145,6 @@ def test__get_capture_attempt_count_without_capture():
 # @pytest.fixture
 # def planet_graph_extended_v2():
 #     planet_graph = PlanetGraph()
-#
-#     planet_graph.add_planet(TATOOINE)
-#     planet_graph.add_planet(DAGOBAH)
-#     planet_graph.add_planet(HOTH)
-#     planet_graph.add_planet(ENDOR)
 #
 #     planet_graph.add_route(TATOOINE, DAGOBAH,6)
 #     planet_graph.add_route(DAGOBAH, HOTH, 4)
