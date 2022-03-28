@@ -48,17 +48,32 @@ class MissionDetails(object):
         return False
 
 
-class MissionConverter:
+class FieldConverter:
+    @staticmethod
+    def _get_field(details: Dict, field_name: str):
+        field = details.get(field_name)
+        if not field:
+            logging.exception(f"{field} Field must be provided")
+            raise Exception(f"{field} Field must be provided")
+        return field
+
+    @staticmethod
+    def _validate_positive_integer(field, field_name: str):
+        if not isinstance(field, int):
+            logging.exception(f"{field_name} must be an int; however, was: {type(field)}")
+            raise Exception(f"{field_name} must be an integer")
+        elif not (field > 0):
+            logging.exception(f"{field_name} must be a greater than 0; however, was: {field_name}")
+            raise Exception(f"{field_name} must be a greater than 0")
+
+
+class MissionConverter(FieldConverter):
 
     @staticmethod
     def map_to_mission_details(details: Dict, directory: str) -> MissionDetails:
-        autonomy = MissionConverter._get_field(details=details, field_name="autonomy")
-        if not isinstance(autonomy, int):
-            logging.exception(f"autonomy must be an int; however, was: {type(autonomy)}")
-            raise Exception("autonomy must be an integer")
-        elif not (autonomy > 0):
-            logging.exception(f"autonomy must be a greater than 0; however, was: {autonomy}")
-            raise Exception("autonomy must be a greater than 0")
+        autonomy_field_name = "autonomy"
+        autonomy = MissionConverter._get_field(details=details, field_name=autonomy_field_name)
+        MissionConverter._validate_positive_integer(field=autonomy, field_name=autonomy_field_name)
         departure = MissionConverter._get_field(details=details, field_name="departure")
         arrival = MissionConverter._get_field(details=details, field_name="arrival")
 
@@ -67,14 +82,6 @@ class MissionConverter:
         planet_graph: PlanetGraph = MissionConverter._load_routes(planet_db_file)
 
         return MissionDetails(autonomy=autonomy, departure=departure, arrival=arrival, routes=planet_graph)
-
-    @staticmethod
-    def _get_field(details: Dict, field_name: str):
-        field = details.get(field_name)
-        if not field:
-            logging.exception(f"{field} Field must be provided")
-            raise Exception(f"{field} Field must be provided")
-        return field
 
     @staticmethod
     def _load_routes(db_file: str) -> PlanetGraph:
