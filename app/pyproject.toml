@@ -9,6 +9,7 @@ python = "^3.8"
 pytest-github-actions-annotate-failures = "^0.1.6"
 fastapi = "^0.75.0"
 uvicorn = "^0.17.6"
+requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
