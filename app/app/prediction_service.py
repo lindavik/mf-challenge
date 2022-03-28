@@ -1,24 +1,50 @@
 from collections import defaultdict
 from typing import Dict
 
+from app.converters import PlanetGraph
 
-class PlanetGraph:
+
+class PredictionService(object):
     def __init__(self):
-        self.planets = set()
-        self.routes = defaultdict(list)
-        self.distances = {}
+       pass
 
-    def add_planet(self, planet_name: str):
-        self.planets.add(planet_name)
-
-    def add_route(self, departure_planet: str, destination_planet: str, distance: int):
-        self.routes[departure_planet].append(destination_planet)
-        self.routes[destination_planet].append(departure_planet)
-        self.distances[(departure_planet, destination_planet)] = distance
-        self.distances[(destination_planet, departure_planet)] = distance
+    def get_probability_of_success(self):
+        pass
 
 
-def get_shortest_path_to_destination(
+def get_probability_of_success(
+    countdown, graph, departure, destination, autonomy, hunter_schedule
+) -> int:
+    """
+    Calculates the probability of success, returns a number ranging from 0 to 100.
+    :param countdown:
+    :param graph:
+    :param departure:
+    :param destination:
+    :param autonomy:
+    :return: the probability of success (ranging from 0 - 100)
+    """
+    shortest_path = _get_shortest_path_to_destination(
+        graph, departure, destination, autonomy
+    )
+    earliest_arrival_day = shortest_path[destination]
+    if earliest_arrival_day > countdown:
+        return 0
+    else:
+        # travel_budget = countdown - shortest_path
+        capture_attempt_count = _get_capture_attempt_count(
+            shortest_path=shortest_path, hunter_schedule=hunter_schedule
+        )
+
+        probability_of_capture: float = _get_probability_of_capture(
+            capture_attempt_count=capture_attempt_count
+        )
+        return _convert_capture_probability_to_success_rate(
+            probability_of_capture=probability_of_capture
+        )
+
+
+def _get_shortest_path_to_destination(
     planet_graph: PlanetGraph, departure: str, destination: str, autonomy: int
 ):
     """
@@ -77,38 +103,6 @@ def get_shortest_path_to_destination(
     earliest_arrival_map[destination] = visited[destination]
 
     return earliest_arrival_map
-
-
-def get_probability_of_success(
-    countdown, graph, departure, destination, autonomy, hunter_schedule
-) -> int:
-    """
-    Calculates the probability of success, returns a number ranging from 0 to 100.
-    :param countdown:
-    :param graph:
-    :param departure:
-    :param destination:
-    :param autonomy:
-    :return: the probability of success (ranging from 0 - 100)
-    """
-    shortest_path = get_shortest_path_to_destination(
-        graph, departure, destination, autonomy
-    )
-    earliest_arrival_day = shortest_path[destination]
-    if earliest_arrival_day > countdown:
-        return 0
-    else:
-        # travel_budget = countdown - shortest_path
-        capture_attempt_count = _get_capture_attempt_count(
-            shortest_path=shortest_path, hunter_schedule=hunter_schedule
-        )
-
-        probability_of_capture: float = _get_probability_of_capture(
-            capture_attempt_count=capture_attempt_count
-        )
-        return _convert_capture_probability_to_success_rate(
-            probability_of_capture=probability_of_capture
-        )
 
 
 def _convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
