@@ -6,31 +6,9 @@ from app.prediction_service import (
     _get_capture_attempt_count,
     _get_probability_of_capture,
     get_probability_of_success,
-    get_shortest_path_to_destination,
+    _get_shortest_path_to_destination,
 )
-
-TATOOINE = "Tatooine"
-DAGOBAH = "Dagobah"
-HOTH = "Hoth"
-ENDOR = "Endor"
-
-
-@pytest.fixture
-def planet_graph_extended():
-    planet_graph = PlanetGraph()
-
-    planet_graph.add_planet(TATOOINE)
-    planet_graph.add_planet(DAGOBAH)
-    planet_graph.add_planet(HOTH)
-    planet_graph.add_planet(ENDOR)
-
-    planet_graph.add_route(TATOOINE, DAGOBAH, 6)
-    planet_graph.add_route(ENDOR, DAGOBAH, 4)
-    planet_graph.add_route(HOTH, DAGOBAH, 1)
-    planet_graph.add_route(ENDOR, HOTH, 1)
-    planet_graph.add_route(HOTH, TATOOINE, 6)
-
-    return planet_graph
+from tests.shared_test_utils import HOTH, TATOOINE, ENDOR, planet_graph
 
 
 @pytest.fixture
@@ -38,37 +16,15 @@ def hunter_schedule():
     return {HOTH: {6, 7, 8}}
 
 
-def test_planet_graph(planet_graph_extended):
-    assert planet_graph_extended.routes == {
-        TATOOINE: [DAGOBAH, HOTH],
-        DAGOBAH: [TATOOINE, ENDOR, HOTH],
-        ENDOR: [DAGOBAH, HOTH],
-        HOTH: [DAGOBAH, ENDOR, TATOOINE],
-    }
-    assert planet_graph_extended.planets == {TATOOINE, DAGOBAH, ENDOR, HOTH}
-    assert planet_graph_extended.distances == {
-        (TATOOINE, DAGOBAH): 6,
-        (DAGOBAH, TATOOINE): 6,
-        (DAGOBAH, ENDOR): 4,
-        (ENDOR, DAGOBAH): 4,
-        (DAGOBAH, HOTH): 1,
-        (HOTH, DAGOBAH): 1,
-        (HOTH, ENDOR): 1,
-        (ENDOR, HOTH): 1,
-        (TATOOINE, HOTH): 6,
-        (HOTH, TATOOINE): 6,
-    }
-
-
-def test_get_shortest_path_to_destination_extended(planet_graph_extended):
+def test_get_shortest_path_to_destination_extended(planet_graph):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
 
     expected_route = {TATOOINE: 0, HOTH: 6, ENDOR: 8}
 
-    route = get_shortest_path_to_destination(
-        planet_graph=planet_graph_extended,
+    route = _get_shortest_path_to_destination(
+        planet_graph=planet_graph,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
@@ -77,7 +33,7 @@ def test_get_shortest_path_to_destination_extended(planet_graph_extended):
     assert route == expected_route
 
 
-def test_get_success_proba(planet_graph_extended, hunter_schedule):
+def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
     autonomy: int = 6
     departure = TATOOINE
     destination = ENDOR
@@ -99,8 +55,6 @@ def test_get_success_proba(planet_graph_extended, hunter_schedule):
 @pytest.fixture
 def planet_graph_minimal():
     planet_graph = PlanetGraph()
-    planet_graph.add_planet(TATOOINE)
-    planet_graph.add_planet(ENDOR)
     planet_graph.add_route(TATOOINE, ENDOR, 6)
     return planet_graph
 
@@ -112,7 +66,7 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
 
     expected_route = {TATOOINE: 0, ENDOR: 6}
 
-    route = get_shortest_path_to_destination(
+    route = _get_shortest_path_to_destination(
         planet_graph=planet_graph_minimal,
         departure=departure,
         destination=destination,
@@ -127,7 +81,7 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
     [(10, 90), (9, 90), (7, 0), (6, 0)],
 )
 def test_get_probability_of_success(
-    planet_graph_extended, input_countdown, expected, hunter_schedule
+    planet_graph, input_countdown, expected, hunter_schedule
 ):
     autonomy: int = 6
     departure = TATOOINE
@@ -135,7 +89,7 @@ def test_get_probability_of_success(
 
     actual = get_probability_of_success(
         countdown=input_countdown,
-        graph=planet_graph_extended,
+        graph=planet_graph,
         departure=departure,
         destination=destination,
         autonomy=autonomy,
@@ -188,20 +142,15 @@ def test__get_capture_attempt_count_without_capture():
     assert actual == expected
 
 
-@pytest.fixture
-def planet_graph_extended_v2():
-    planet_graph = PlanetGraph()
-
-    planet_graph.add_planet(TATOOINE)
-    planet_graph.add_planet(DAGOBAH)
-    planet_graph.add_planet(HOTH)
-    planet_graph.add_planet(ENDOR)
-
-    planet_graph.add_route(TATOOINE, DAGOBAH,6)
-    planet_graph.add_route(DAGOBAH, HOTH, 4)
-    planet_graph.add_route(HOTH, ENDOR, 2)
-
-    return planet_graph
+# @pytest.fixture
+# def planet_graph_extended_v2():
+#     planet_graph = PlanetGraph()
+#
+#     planet_graph.add_route(TATOOINE, DAGOBAH,6)
+#     planet_graph.add_route(DAGOBAH, HOTH, 4)
+#     planet_graph.add_route(HOTH, ENDOR, 2)
+#
+#     return planet_graph
 
 
 # def test_get_shortest_path_to_destination_extended_v2(planet_graph_extended_v2):

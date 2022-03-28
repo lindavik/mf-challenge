@@ -27,7 +27,8 @@ jobs:
 
       - name: Run tests
         run: pytest
+        working-directory: app/tests
 
       - name: Get coverage
-        run: pytest --cov=app --cov-fail-under=95 tests
-        working-directory: app
+        run: pytest --cov=app --cov-fail-under=80 .
+        working-directory: app/tests
