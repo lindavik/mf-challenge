@@ -1,19 +1,8 @@
 import pytest
 
 from app.context import ContextLoader
-from app.converters import MissionDetails, PlanetGraph, InterceptedData
-from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH
-
-
-@pytest.fixture
-def planet_graph():
-    planet_graph: PlanetGraph = PlanetGraph()
-    planet_graph.add_route(TATOOINE, DAGOBAH, 6)
-    planet_graph.add_route(DAGOBAH, ENDOR, 4)
-    planet_graph.add_route(DAGOBAH, HOTH, 1)
-    planet_graph.add_route(HOTH, ENDOR, 1)
-    planet_graph.add_route(TATOOINE, HOTH, 6)
-    return planet_graph
+from app.converters import MissionDetails, InterceptedData
+from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH, planet_graph
 
 
 def test_load_mission_details(planet_graph):
