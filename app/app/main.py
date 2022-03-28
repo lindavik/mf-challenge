@@ -24,20 +24,15 @@ app = FastAPI(
     description=description
 )
 
-prediction_service: PredictionService = None
-
 
 @app.on_event("startup")
-async def startup_event():
-    print("initializing")
+def get_prediction_service():
     mission_details_file_path: str = os.path.abspath("./../../inputs/millennium-falcon.json")
     mission_details = ContextLoader.load_mission_details(file_path=mission_details_file_path)
-    prediction_service = PredictionService(mission_details=mission_details)
+    return PredictionService(mission_details=mission_details)
 
-    # use_default_intercepted_data = False
-    # if use_default_intercepted_data:
-    #     intercepted_data_file: str = ""  # todo populate with args
-    #     intercepted_data = ContextLoader.load_intercepted_data_from_file(file_path=intercepted_data_file)
+
+prediction_service: PredictionService = get_prediction_service()
 
 
 @app.get("/", include_in_schema=False)
@@ -52,11 +47,6 @@ class InterceptedDataModel(BaseModel):
 
 @app.post("/v1/mission-success/")
 async def mission_calculate(item: InterceptedDataModel):
-    mission_details_file_path: str = os.path.abspath("./../../inputs/millennium-falcon.json")
-    mission_details = ContextLoader.load_mission_details(file_path=mission_details_file_path)
-    prediction_service = PredictionService(mission_details=mission_details)
-    # todo move to startup
-
     intercepted_data_raw = jsonable_encoder(item)
     intercepted_data = ContextLoader.load_intercepted_data(raw_intercepted_data=intercepted_data_raw)
     return prediction_service.get_probability_of_success(countdown=intercepted_data.countdown,

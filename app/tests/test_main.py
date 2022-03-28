@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.main import app, startup_event
+from app.main import app
 
 client = TestClient(app)
 
@@ -26,7 +26,6 @@ def test_mission_endpoint_wrong_method():
 
 
 def test_mission_endpoint():
-    startup_event()
     payload = {
         "countdown": 6,
         "bounty_hunters": [
