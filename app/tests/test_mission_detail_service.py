@@ -1,40 +1,44 @@
-import json
+from typing import Dict
 
 import pytest
 
-from app.mission_detail_service import MissionDetails, MissionConverter
+from app.mission_detail_service import MissionDetails, MissionConverter, PlanetGraph
+from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH, planet_graph
 
 
-def test_get_mission_details():
-    details = {
+def test_get_mission_details(planet_graph):
+    details: Dict = {
         "autonomy": 6,
         "departure": "Tatooine",
         "arrival": "Endor",
         "routes_db": "universe.db"
     }
-    expected = MissionDetails(autonomy=6,
-                            departure="Tatooine",
-                            arrival="Endor",
-                            routes="universe.db")
+    directory: str = "sample_inputs/"
+    expected: MissionDetails = MissionDetails(autonomy=6,
+                                              departure="Tatooine",
+                                              arrival="Endor",
+                                              routes=planet_graph)
 
-    actual = MissionConverter.get_mission_details(details)
+    actual: MissionDetails = MissionConverter.map_to_mission_details(details, directory=directory)
 
     assert actual == expected
 
 
 def test_get_mission_details_bad_field_format():
-    details = {
+    directory: str = "sample_inputs/"
+    details: Dict = {
         "autonomy": "6",
         "departure": "Tatooine",
         "arrival": "Endor",
         "routes_db": "universe.db"
     }
     with pytest.raises(Exception):
-        MissionConverter.get_mission_details(details)
+        MissionConverter.map_to_mission_details(details, directory)
 
 
-def test_get_mission_details_with_unknown_fields():
-    details = {
+def test_get_mission_details_with_unknown_fields(planet_graph):
+    directory: str = "sample_inputs/"
+    details: Dict = {
         "autonomy": 6,
         "departure": "Tatooine",
         "arrival": "Endor",
@@ -42,27 +46,29 @@ def test_get_mission_details_with_unknown_fields():
         "should_not_be_here": "nope"
     }
 
-    expected = MissionDetails(autonomy=6,
-                            departure="Tatooine",
-                            arrival="Endor",
-                            routes="universe.db")
+    expected: MissionDetails = MissionDetails(autonomy=6,
+                                              departure="Tatooine",
+                                              arrival="Endor",
+                                              routes=planet_graph)
 
-    actual = MissionConverter.get_mission_details(details)
+    actual: MissionDetails = MissionConverter.map_to_mission_details(details, directory)
 
     assert actual == expected
 
 
 def test_get_mission_details_missing_required_details():
+    directory: str = "sample_inputs/"
     with pytest.raises(Exception):
         details = {
             "autonomy": 6,
             "arrival": "Endor",
             "routes_db": "universe.db"
         }
-        MissionConverter.get_mission_details(details)
+        MissionConverter.map_to_mission_details(details, directory)
 
 
 def test_get_mission_details_invalid_autonomy():
+    directory: str = "sample_inputs/"
     with pytest.raises(Exception):
         details = {
             "autonomy": -6,
@@ -70,4 +76,26 @@ def test_get_mission_details_invalid_autonomy():
             "departure": "Tatooine",
             "routes_db": "universe.db"
         }
-        MissionConverter.get_mission_details(details)
+        MissionConverter.map_to_mission_details(details, details)
+
+
+def test_planet_graph(planet_graph):
+    assert planet_graph.routes == {
+        TATOOINE: [DAGOBAH, HOTH],
+        DAGOBAH: [TATOOINE, ENDOR, HOTH],
+        ENDOR: [DAGOBAH, HOTH],
+        HOTH: [DAGOBAH, ENDOR, TATOOINE],
+    }
+    assert planet_graph.planets == {TATOOINE, DAGOBAH, ENDOR, HOTH}
+    assert planet_graph.distances == {
+        (TATOOINE, DAGOBAH): 6,
+        (DAGOBAH, TATOOINE): 6,
+        (DAGOBAH, ENDOR): 4,
+        (ENDOR, DAGOBAH): 4,
+        (DAGOBAH, HOTH): 1,
+        (HOTH, DAGOBAH): 1,
+        (HOTH, ENDOR): 1,
+        (ENDOR, HOTH): 1,
+        (TATOOINE, HOTH): 6,
+        (HOTH, TATOOINE): 6,
+    }
