@@ -8,7 +8,13 @@ The details of this challenge can be found [here](https://github.com/dataiku/mil
 
 ### To start
 
+If you have Docker and docker-compose installed locally, you can start the application using:
 ```docker-compose up -d```
+By default, the frontend should be available on [port 8501](http://localhost:8501/)
+and the backend should be available on [port 8000](http://localhost:8000/).
+
+To stop and remove the containers, networks, volumes, and images created by the previous up command run:
+```docker-compose down```
 
 ### Backend
 
