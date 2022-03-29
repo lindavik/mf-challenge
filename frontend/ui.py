@@ -7,6 +7,8 @@ import streamlit as st
 from PIL import Image
 from requests import Response
 
+backend_url = "http://fastapi:8000/v1/mission-success/"
+
 st.title("Give Me The Odds")
 
 top_column_left, top_column_right = st.columns(2)
@@ -29,8 +31,7 @@ if uploaded_file is not None:
      stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
      string_data = stringio.read()
      json_input = json.loads(string_data)
-     url = "http://0.0.0.0:8000/v1/mission-success/"
-     result: Response = requests.post(url=url, json=json_input)
+     result: Response = requests.post(url=backend_url, json=json_input)
      mid_column_right.header(f"{int(result.content)} %")
 
 
