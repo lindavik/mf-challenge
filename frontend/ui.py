@@ -1,5 +1,6 @@
 import json
 from io import StringIO
+from json import JSONDecodeError
 
 import requests
 import streamlit as st
@@ -8,6 +9,7 @@ from PIL import Image
 from requests import Response
 
 backend_url = "http://fastapi:8000/v1/mission-success/"
+# backend_url = "http://localhost:8000/v1/mission-success/"
 
 st.title("Give Me The Odds")
 
@@ -30,9 +32,12 @@ uploaded_file = st.file_uploader(label="Upload a JSON file containing the data i
 if uploaded_file is not None:
      stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
      string_data = stringio.read()
-     json_input = json.loads(string_data)
-     result: Response = requests.post(url=backend_url, json=json_input)
-     mid_column_right.header(f"{int(result.content)} %")
+     try:
+         json_input = json.loads(string_data)
+         result: Response = requests.post(url=backend_url, json=json_input)
+         mid_column_right.header(f"{int(result.content)} %")
+     except JSONDecodeError as jde:
+         st.error("Invalid JSON file provided. Please check the recommended file setup below.")
 
 
 with st.expander("Show hints"):
