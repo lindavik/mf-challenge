@@ -30,3 +30,4 @@ def test_get_iterator(test_file_path):
     actual = DBConnector.get_iterator(db_file=db_file, query=query)
 
     assert actual is not None
+
