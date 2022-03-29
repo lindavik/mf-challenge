@@ -1,25 +1,31 @@
+import os
 from sqlite3 import Connection
 
 import pytest
 
-from app.db_connector import DBConnector, DatabaseFileNotFound
+from backend.db_connector import DBConnector, DatabaseFileNotFound
 
 
-def test_create_connection():
-    db_file: str = './sample_inputs/universe.db'
+@pytest.fixture
+def test_file_path():
+    return os.path.dirname(os.path.realpath(__file__))
+
+
+def test_create_connection(test_file_path):
+    db_file: str = os.path.join(test_file_path, "sample_inputs/universe.db")
     actual: Connection = DBConnector._create_connection(db_file)
 
     assert actual is not None
 
 
-def test_create_connection_no_db_file():
+def test_create_connection_no_db_file(test_file_path):
     with pytest.raises(DatabaseFileNotFound):
-        db_file: str = './sample_inputs/universe23.db'
+        db_file: str = os.path.join(test_file_path, "sample_inputs/universe23.db")
         DBConnector._create_connection(db_file)
 
 
-def test_get_iterator():
-    db_file: str = './sample_inputs/universe.db'
+def test_get_iterator(test_file_path):
+    db_file: str = os.path.join(test_file_path, "sample_inputs/universe.db")
     query: str = "SELECT origin, destination, travel_time FROM routes"
     actual = DBConnector.get_iterator(db_file=db_file, query=query)
 
