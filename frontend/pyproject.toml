@@ -8,6 +8,7 @@ authors = ["lindavik <linda.viksne@gmail.com>"]
 python = "^3.8"
 streamlit = "^1.8.0"
 click = "8.0.4"
+watchdog = "^2.1.7"
 
 [tool.poetry.dev-dependencies]
 

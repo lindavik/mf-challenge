@@ -1178,7 +1178,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "5c9b60377da022177b60f23f883b862e3ff0d41b6ef17ce01ea00f69832af571"
+content-hash = "3d024e82b08fa3112314b49f5562cf3444e4c5b5cc1c23e7941e9413ead0a17f"
 
 [metadata.files]
 altair = [
