@@ -1,7 +1,11 @@
+import json
+from io import StringIO
+
+import requests
 import streamlit as st
 
 from PIL import Image
-
+from requests import Response
 
 st.title("Give Me The Odds")
 
@@ -14,21 +18,20 @@ image = Image.open('static/c3po.png')
 top_column_right.image(image)
 
 mid_column_left, mid_column_right = st.columns(2)
-mid_column_left.header("ODDS (%):")
-
-
-def uploader_callback():
-    if uploaded_file is None:
-        mid_column_right.header("Calculating...")
-    else:
-        mid_column_right.header("")
-
+mid_column_left.header("ODDS:")
 
 uploaded_file = st.file_uploader(label="Upload a JSON file containing the data intercepted by the rebels below",
                                  type=["json"],
-                                 on_change=uploader_callback,
                                  key="file_uploader",
                                  help="Expand the 'Show hints' section to learn more about the expected file format")
+
+if uploaded_file is not None:
+     stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
+     string_data = stringio.read()
+     json_input = json.loads(string_data)
+     url = "http://0.0.0.0:8000/v1/mission-success/"
+     result: Response = requests.post(url=url, json=json_input)
+     mid_column_right.header(f"{int(result.content)} %")
 
 
 with st.expander("Show hints"):
