@@ -27,7 +27,8 @@ app = FastAPI(
 
 @app.on_event("startup")
 def get_prediction_service():
-    mission_details_file_path: str = os.path.abspath("./default_inputs/millennium-falcon.json")
+    file_path = os.path.dirname(os.path.realpath(__file__))
+    mission_details_file_path: str = os.path.join(file_path, "default_inputs/millennium-falcon.json")
     mission_details = ContextLoader.load_mission_details(file_path=mission_details_file_path)
     logging.info("Finished loading mission details...")
     return PredictionService(mission_details=mission_details)

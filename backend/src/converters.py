@@ -2,7 +2,7 @@ import logging
 from collections import defaultdict
 from typing import Dict, List
 
-from db_connector import DBConnector
+from backend.src.db_connector import DBConnector
 
 
 class PlanetGraph(object):

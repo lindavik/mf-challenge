@@ -6,6 +6,10 @@ The details of this challenge can be found [here](https://github.com/dataiku/mil
 
 ## Setup
 
+### To start
+
+```docker-compose up -d```
+
 ### Backend
 
 The backend is created using [FastApi](https://fastapi.tiangolo.com/).

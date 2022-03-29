@@ -1,6 +1,6 @@
 import pytest
 
-from app.file_reader import FileReader, InputFileReadError
+from backend.src.file_reader import FileReader, InputFileReadError
 
 
 def test_read_json():

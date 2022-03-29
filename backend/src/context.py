@@ -14,7 +14,6 @@ class ContextLoader:
         :param file_path: path to the input file containing the mission details
         :return: mission details
         """
-        # file_path = os.path.abspath(file_path)
         mission_details_raw = FileReader.read_json(file_path)
         directory: str = os.path.dirname(file_path)
         return MissionConverter.map_to_mission_details(mission_details_raw, directory)

@@ -3,7 +3,7 @@ from typing import Dict
 import pytest
 
 from app.converters import MissionDetails, MissionConverter, InterceptedDataConverter, InterceptedData
-from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH, planet_graph
+from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH
 
 
 def test_get_mission_details(planet_graph):

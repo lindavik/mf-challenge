@@ -1,8 +1,6 @@
-import pytest
-
-from app.context import ContextLoader
-from app.converters import MissionDetails, InterceptedData
-from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH, planet_graph
+from backend.src.context import ContextLoader
+from backend.src.converters import MissionDetails, InterceptedData
+from backend.tests.conftest import TATOOINE, ENDOR, DAGOBAH
 
 
 def test_load_mission_details(planet_graph):
