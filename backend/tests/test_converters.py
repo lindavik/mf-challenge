@@ -1,19 +1,47 @@
+import inspect
+import os
+import sys
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
 from typing import Dict
 
 import pytest
 
-from app.converters import MissionDetails, MissionConverter, InterceptedDataConverter, InterceptedData
-from tests.shared_test_utils import TATOOINE, DAGOBAH, ENDOR, HOTH, planet_graph
+from converters import MissionDetails, MissionConverter, InterceptedData, InterceptedDataConverter, PlanetGraph
+
+TATOOINE = "Tatooine"
+DAGOBAH = "Dagobah"
+HOTH = "Hoth"
+ENDOR = "Endor"
 
 
-def test_get_mission_details(planet_graph):
+@pytest.fixture
+def current_file_path():
+    return os.path.dirname(os.path.realpath(__file__))
+
+
+@pytest.fixture
+def planet_graph():
+    planet_graph = PlanetGraph()
+    planet_graph.add_route(TATOOINE, DAGOBAH, 6)
+    planet_graph.add_route(ENDOR, DAGOBAH, 4)
+    planet_graph.add_route(HOTH, DAGOBAH, 1)
+    planet_graph.add_route(ENDOR, HOTH, 1)
+    planet_graph.add_route(HOTH, TATOOINE, 6)
+    return planet_graph
+
+
+def test_get_mission_details(current_file_path, planet_graph):
     details: Dict = {
         "autonomy": 6,
         "departure": "Tatooine",
         "arrival": "Endor",
         "routes_db": "universe.db"
     }
-    directory: str = "sample_inputs/"
+    directory: str = os.path.join(current_file_path, "sample_inputs")
     expected: MissionDetails = MissionDetails(autonomy=6,
                                               departure="Tatooine",
                                               arrival="Endor",
@@ -24,8 +52,8 @@ def test_get_mission_details(planet_graph):
     assert actual == expected
 
 
-def test_get_mission_details_bad_field_format():
-    directory: str = "sample_inputs/"
+def test_get_mission_details_bad_field_format(current_file_path):
+    directory: str = os.path.join(current_file_path, "sample_inputs")
     details: Dict = {
         "autonomy": "6",
         "departure": "Tatooine",
@@ -36,8 +64,8 @@ def test_get_mission_details_bad_field_format():
         MissionConverter.map_to_mission_details(details, directory)
 
 
-def test_get_mission_details_with_unknown_fields(planet_graph):
-    directory: str = "sample_inputs/"
+def test_get_mission_details_with_unknown_fields(current_file_path, planet_graph):
+    directory: str = os.path.join(current_file_path, "sample_inputs")
     details: Dict = {
         "autonomy": 6,
         "departure": "Tatooine",
@@ -56,8 +84,8 @@ def test_get_mission_details_with_unknown_fields(planet_graph):
     assert actual == expected
 
 
-def test_get_mission_details_missing_required_details():
-    directory: str = "sample_inputs/"
+def test_get_mission_details_missing_required_details(current_file_path):
+    directory: str = os.path.join(current_file_path, "sample_inputs")
     with pytest.raises(Exception):
         details = {
             "autonomy": 6,
@@ -67,8 +95,8 @@ def test_get_mission_details_missing_required_details():
         MissionConverter.map_to_mission_details(details, directory)
 
 
-def test_get_mission_details_invalid_autonomy():
-    directory: str = "sample_inputs/"
+def test_get_mission_details_invalid_autonomy(current_file_path):
+    directory: str = os.path.join(current_file_path, "sample_inputs")
     with pytest.raises(Exception):
         details = {
             "autonomy": -6,

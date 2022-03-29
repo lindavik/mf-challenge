@@ -1,8 +1,8 @@
 import os
 from typing import Dict
 
-from app.file_reader import FileReader
-from app.converters import MissionConverter, MissionDetails, InterceptedData, InterceptedDataConverter
+from file_reader import FileReader
+from converters import MissionConverter, MissionDetails, InterceptedData, InterceptedDataConverter
 
 
 class ContextLoader:
@@ -25,6 +25,7 @@ class ContextLoader:
         :param file_path: path to the input file containing the intercepted data
         :return: intercepted data
         """
+        # file_path = os.path.abspath(file_path)
         raw_intercepted_data = FileReader.read_json(file_path)
         return InterceptedDataConverter.map_to_intercepted_data(raw_data=raw_intercepted_data)
 

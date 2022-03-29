@@ -8,7 +8,7 @@ import streamlit as st
 from PIL import Image
 from requests import Response
 
-backend_url = "http://fastapi:8000/v1/mission-success/"
+backend_url = "http://backend:8000/v1/mission-success/"
 # backend_url = "http://localhost:8000/v1/mission-success/"
 
 st.title("Give Me The Odds")

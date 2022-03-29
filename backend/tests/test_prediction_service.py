@@ -1,10 +1,36 @@
+import inspect
+import os
+import sys
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
+
 import pytest
 
-from app.converters import MissionDetails
-from app.prediction_service import (
-    PlanetGraph, PredictionService,
-)
-from tests.shared_test_utils import HOTH, TATOOINE, ENDOR, planet_graph
+from converters import MissionDetails
+from prediction_service import PredictionService
+
+
+from backend.converters import PlanetGraph
+
+TATOOINE = "Tatooine"
+DAGOBAH = "Dagobah"
+HOTH = "Hoth"
+ENDOR = "Endor"
+
+
+@pytest.fixture(scope='session', autouse=True)
+def planet_graph(request):
+    planet_graph = PlanetGraph()
+    planet_graph.add_route(TATOOINE, DAGOBAH, 6)
+    planet_graph.add_route(ENDOR, DAGOBAH, 4)
+    planet_graph.add_route(HOTH, DAGOBAH, 1)
+    planet_graph.add_route(ENDOR, HOTH, 1)
+    planet_graph.add_route(HOTH, TATOOINE, 6)
+    return planet_graph
+
 
 
 @pytest.fixture
@@ -29,23 +55,23 @@ def test_get_shortest_path_to_destination_extended(prediction_service):
     assert route == expected_route
 
 
-def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
-    autonomy: int = 6
-    departure = TATOOINE
-    destination = ENDOR
-    countdown = 7
-    expected = 0
-
-    actual = get_probability_of_success(
-        countdown=countdown,
-        graph=planet_graph_extended,
-        departure=departure,
-        destination=destination,
-        autonomy=autonomy,
-        hunter_schedule=hunter_schedule,
-    )
-
-    assert actual == expected
+# def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
+#     autonomy: int = 6
+#     departure = TATOOINE
+#     destination = ENDOR
+#     countdown = 7
+#     expected = 0
+#
+#     actual = get_probability_of_success(
+#         countdown=countdown,
+#         graph=planet_graph_extended,
+#         departure=departure,
+#         destination=destination,
+#         autonomy=autonomy,
+#         hunter_schedule=hunter_schedule,
+#     )
+#
+#     assert actual == expected
 
 
 @pytest.fixture

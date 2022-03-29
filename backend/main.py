@@ -7,10 +7,10 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
-from app.context import ContextLoader
+from context import ContextLoader
 from fastapi import FastAPI
 
-from app.prediction_service import PredictionService
+from prediction_service import PredictionService
 
 logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -27,8 +27,10 @@ app = FastAPI(
 
 @app.on_event("startup")
 def get_prediction_service():
-    mission_details_file_path: str = os.path.abspath("./../../inputs/millennium-falcon.json")
+    file_path = os.path.dirname(os.path.realpath(__file__))
+    mission_details_file_path: str = os.path.join(file_path, "default_inputs/millennium-falcon.json")
     mission_details = ContextLoader.load_mission_details(file_path=mission_details_file_path)
+    logging.info("Finished loading mission details...")
     return PredictionService(mission_details=mission_details)
 
 
@@ -48,6 +50,7 @@ class InterceptedDataModel(BaseModel):
 @app.post("/v1/mission-success/")
 async def mission_calculate(item: InterceptedDataModel):
     intercepted_data_raw = jsonable_encoder(item)
+    logging.info(f"Intercepted raw data: {intercepted_data_raw}")
     intercepted_data = ContextLoader.load_intercepted_data(raw_intercepted_data=intercepted_data_raw)
     return prediction_service.get_probability_of_success(countdown=intercepted_data.countdown,
                                                          hunter_schedule=intercepted_data.bounty_hunter_schedule)
