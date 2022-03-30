@@ -6,7 +6,7 @@ The details of this challenge can be found [here](https://github.com/dataiku/mil
 
 ## Setup
 
-### To start
+### To start the web app
 
 If you have Docker and docker-compose installed locally, you can start the application using:
 ```docker-compose up -d```
@@ -28,8 +28,7 @@ This project uses Poetry which is a tool for dependency management and packaging
 It allows you to declare the libraries your project depends on and it will manage (install/update) them for you.
 You can read more about Poetry, how to install it and set it up [here](https://python-poetry.org/docs/).
 
-To install dependencies using Poetry, move into the `app` directory (backend component) and run `poetry install`.
-
+To install dependencies using Poetry, move into the app or frontend directory and run `poetry install`.
 
 ### Frontend
 
@@ -37,6 +36,16 @@ The frontend is built using [Streamlit](https://streamlit.io/).
 Dependency management is done using [Poetry]((https://python-poetry.org/docs/)) which is described in more detail above.
 If the file upload button is not responding, please try allowing pop-ups in your browser and once you adjust this 
 setting, restart the browser and try again.
+
+### CLI 
+
+There is an option to get the predictions using a CLI app. There are multiple ways to do it.
+- If you have checked out the code and installed the dependencies, from the project root you can simply run the command below, 
+specifying the file location relative to the directory that you are running the command from:
+```python backend/cli.py backend/default_inputs/millennium-falcon.json ./default_inputs/empire.json```
+- fb
+
+To get more information on the CLI app simply use the `--help` flag.
 
 #### Pre-commit
 
@@ -51,4 +60,3 @@ To use the hooks available:
 You can get an insight into the way the work was organized in this [planning board](https://github.com/lindavik/mf-challenge/projects/1).
 Things that I would consider doing, if I had the luxury of more time:
 - End-to-end testing using Cucumber + Selenium + Gherkin for a more Behaviour Driven Development (BDD) style
-- 

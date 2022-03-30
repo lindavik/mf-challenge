@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["lindavik <linda.viksne@gmail.com>"]
 
+[tool.poetry.scripts]
+give-me-the-odds = "cli:app"
+
 [tool.poetry.dependencies]
 python = "^3.8"
 fastapi = "^0.75.0"
