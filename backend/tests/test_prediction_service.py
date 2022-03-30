@@ -55,7 +55,7 @@ def test__adjust_for_fuelling_needs():
     assert actual == expected
 
 
-def test__adjust_for_fuelling_needs_v2():
+def test__adjust_for_fuelling_needs_multiple_refuellings():
     autonomy: int = 6
     route: List = [('Tatooine', 0), ('Random', 3), ('Hoth', 7), ('Endor', 12)]
     expected: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Hoth', 8), ('Hoth', 9), ('Endor', 14)]
@@ -64,15 +64,6 @@ def test__adjust_for_fuelling_needs_v2():
 
     assert actual == expected
 
-
-def test__sort_route_by_arrival_day_ascending():
-    route = {TATOOINE: 9, HOTH: 3, ENDOR: 5}
-    expected = {TATOOINE: 6, HOTH: 3, ENDOR: 9}
-    # expected = [(TATOOINE, 1), (HOTH, 3), (ENDOR,9)]
-
-    actual = PredictionService._sort_route_by_arrival_day_ascending(route=route)
-
-    assert actual == expected
 
 # def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
 #     autonomy: int = 6
@@ -107,7 +98,7 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
                                                      routes=planet_graph_minimal)
     prediction_service = PredictionService(mission_details=mission_details)
 
-    expected_route = {TATOOINE: 0, ENDOR: 6}
+    expected_route = [(TATOOINE, 0), (ENDOR, 6)]
 
     route = prediction_service._get_shortest_path_to_destination()
 
@@ -115,13 +106,13 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
 
 
 @pytest.mark.parametrize(
-    "input_countdown, expected",
-    [(10, 90), (9, 90), (7, 0), (6, 0)],
+    "countdown, expected",
+    [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0)],
 )
-def test_get_probability_of_success(prediction_service, input_countdown, expected, hunter_schedule
+def test_get_probability_of_success(prediction_service, countdown, expected, hunter_schedule
                                     ):
     actual = prediction_service.get_probability_of_success(
-        countdown=input_countdown,
+        countdown=countdown,
         hunter_schedule=hunter_schedule,
     )
 
@@ -149,7 +140,7 @@ def test_convert_capture_probability_to_success_rate(input, expected):
 
 
 def test__get_capture_attempt_count_with_capture(hunter_schedule):
-    shortest_path = {TATOOINE: 0, HOTH: 7, ENDOR: 9}
+    shortest_path: List = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 1
 
     actual = PredictionService._get_capture_attempt_count(
@@ -161,7 +152,7 @@ def test__get_capture_attempt_count_with_capture(hunter_schedule):
 
 def test__get_capture_attempt_count_without_capture():
     hunter_schedule = {TATOOINE: {6, 7, 8}}
-    shortest_path = {TATOOINE: 0, HOTH: 7, ENDOR: 9}
+    shortest_path = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 0
 
     actual = PredictionService._get_capture_attempt_count(

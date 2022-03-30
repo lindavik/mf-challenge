@@ -22,8 +22,8 @@ class PredictionService(object):
         without being captured by bounty hunters
         """
         shortest_path = self._get_shortest_path_to_destination()
-        earliest_arrival_day = shortest_path[self.destination]
-        # fuel_adjusted_earliest_arrival_day = self._adjust_for_fuelling_needs()
+        adjusted_path = PredictionService._adjust_for_fuelling_needs(route=shortest_path, autonomy=self.autonomy)
+        earliest_arrival_day = adjusted_path[-1][1]
         if earliest_arrival_day > countdown:
             return 0
         else:
@@ -111,11 +111,11 @@ class PredictionService(object):
         return new_route
 
     @staticmethod
-    def _get_capture_attempt_count(shortest_path: Dict, hunter_schedule: Dict):
+    def _get_capture_attempt_count(shortest_path: List, hunter_schedule: Dict):
         capture_attempts: int = 0
-        for planet in shortest_path.items():
-            planet_name = planet[0]
-            arrival_day = planet[1]
+        for stop in shortest_path:
+            planet_name = stop[0]
+            arrival_day = stop[1]
             if (
                     planet_name in hunter_schedule.keys()
                     and arrival_day in hunter_schedule[planet_name]
