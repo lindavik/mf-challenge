@@ -1,18 +1,25 @@
 # Millennium Falcon Challenge
 
-The details of this challenge can be found [here](https://github.com/dataiku/millenium-falcon-challenge).
+## Problem description
+The Death Star - the Empire's ultimate weapon - is almost operational and is currently approaching the Endor planet. The countdown has started.
 
-[//]: <> (todo add a more elaborate description) + add how to start everything up, where to put input files, default files used
+Han Solo, Chewbacca, Leia and C3PO are currently on Tatooine boarding on the Millennium Falcon. They must reach Endor to join the Rebel fleet and destroy the Death Star before it annihilates the planet.
 
-## Algorithm outline
+The Empire has hired the best bounty hunters in the galaxy to capture the Millennium Falcon and stop it from joining the rebel fleet...
 
-The algorithm works as follows:
+This project provides with a solution to calculate the odds of the Millennium Falcon reaching Endor in time and saving the galaxy.
+
+You can read more about the challenge [here](https://github.com/dataiku/millenium-falcon-challenge).
+
+## Solution outline
+
+The solution algorithm works as follows:
 - Based on the provided input files, Dijkstra's algorithm is used to find the shortest path in a weighted graph.
 Here we regard the planets as nodes and the distances as the weights;
 - Once we have determined the shortest path between the starting node, i.e. the departure planet, and the end node, i.e.
 the destination planet, we assume that this is the best path (even though a longer path with fewer bounty hunters might 
 actually be better from a probability perspective in reality);
-- If the shortest path (adjusted for fuelling needs) exceeds the time limit, i.e. countdown, the probability becomes zero;
+- If the shortest path (adjusted for fuelling needs) exceeds the time limit, i.e. countdown, the probability of success becomes zero;
 - If the shortest path is within the provided time limit, we continue to calculate the probability of success based on
 the intercepted information on bounty hunter presence.
 
