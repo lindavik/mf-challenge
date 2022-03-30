@@ -39,12 +39,15 @@ setting, restart the browser and try again.
 
 ### CLI 
 
-There is an option to get the predictions using a CLI app. There are multiple ways to do it.
-- If you have checked out the code and installed the dependencies, from the project root you can simply run the command below, 
-specifying the file location relative to the directory that you are running the command from:
-```python backend/givemetheodds/cli.py ./backend/givemetheodds/default_inputs/millennium-falcon.json ./backend/givemetheodds/default_inputs/empire.json```
-- If you have checked out the code and installed poetry, you can run `poetry install` to install the package and its dependencies. 
-You can then run the 
+There is an option to get the predictions using a CLI app.
+To do this you have to do the following steps:
+- check out the project code;
+- install Poetry (see above);
+- run `poetry install` to install the package and its dependencies.
+
+Once done, from the project root directory you can then run
+`give-me-the-odds inputs/millennium-falcon.json inputs/empire.json`
+  (assuming your input files are in the `inputs` folder).
 
 To get more information on the CLI app simply use the `--help` flag.
 
