@@ -4,15 +4,12 @@ from pathlib import Path
 from typing import List
 
 import uvicorn
+from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
 from mission_service import MissionService
-from context import ContextLoader
-from fastapi import FastAPI
-
-from prediction_service import PredictionService
 
 logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -43,12 +40,15 @@ async def root():
 
 
 class InterceptedDataModel(BaseModel):
-    countdown: int
-    bounty_hunters: List[dict] = []
+    countdown: int = 6
+    bounty_hunters: List[dict] = [
+        {"planet": "Tatooine", "day": 4},
+        {"planet": "Dagobah", "day": 5}
+    ]
 
 
 @app.post("/v1/mission-success/")
-async def mission_calculate(item: InterceptedDataModel):
+async def calculate_mission_success_odds(item: InterceptedDataModel):
     intercepted_data = jsonable_encoder(item)
     logging.info(f"Intercepted raw data: {intercepted_data}")
     return mission_service.get_mission_success_odds(intercepted_data=intercepted_data)
