@@ -5,6 +5,10 @@ import typer
 from mission_service import MissionService
 
 
+app = typer.Typer()
+
+
+@app.command()
 def get_odds(
         mission_details_file_path: Path = typer.Argument(...,
                                                            help="The path to the file containing the Millennium Falcon mission details"),
@@ -20,4 +24,4 @@ def get_odds(
 
 
 if __name__ == "__main__":
-    typer.run(get_odds)
+    app()
