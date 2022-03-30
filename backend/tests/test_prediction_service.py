@@ -65,25 +65,6 @@ def test__adjust_for_fuelling_needs_multiple_refuellings():
     assert actual == expected
 
 
-# def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
-#     autonomy: int = 6
-#     departure = TATOOINE
-#     destination = ENDOR
-#     countdown = 7
-#     expected = 0
-#
-#     actual = get_probability_of_success(
-#         countdown=countdown,
-#         graph=planet_graph_extended,
-#         departure=departure,
-#         destination=destination,
-#         autonomy=autonomy,
-#         hunter_schedule=hunter_schedule,
-#     )
-#
-#     assert actual == expected
-
-
 @pytest.fixture
 def planet_graph_minimal():
     planet_graph = PlanetGraph()
@@ -161,29 +142,51 @@ def test__get_capture_attempt_count_without_capture():
 
     assert actual == expected
 
-# @pytest.fixture
-# def planet_graph_extended_v2():
-#     planet_graph = PlanetGraph()
-#
-#     planet_graph.add_route(TATOOINE, DAGOBAH,6)
-#     planet_graph.add_route(DAGOBAH, HOTH, 4)
-#     planet_graph.add_route(HOTH, ENDOR, 2)
-#
-#     return planet_graph
+
+def test__get_lowest_capture_attempt_count_with_no_delay_budget(hunter_schedule):
+    shortest_path: List = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
+    expected: int = 1
+    delay_budget: int = 0
+
+    actual = PredictionService._get_lowest_capture_attempt_count(shortest_path=shortest_path,
+                                                                 hunter_schedule=hunter_schedule,
+                                                                 delay_budget=delay_budget)
+
+    assert actual == expected
 
 
-# def test_get_shortest_path_to_destination_extended_v2(planet_graph_extended_v2):
-#     autonomy: int = 6
-#     departure = TATOOINE
-#     destination = ENDOR
-#
-#     expected_route = {TATOOINE: 0, DAGOBAH: 6, HOTH: 11, ENDOR: 13}
-#
-#     route = get_shortest_path_to_destination(
-#         planet_graph=planet_graph_extended_v2,
-#         departure=departure,
-#         destination=destination,
-#         autonomy=autonomy,
-#     )
-#
-#     assert route == expected_route
+def test__get_lowest_capture_attempt_count_with_delay_budget():
+    hunter_schedule = {
+        HOTH: {7},
+        ENDOR: {9}
+    }
+    shortest_path: List = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
+    expected: int = 0
+    delay_budget: int = 2
+
+    actual = PredictionService._get_lowest_capture_attempt_count(shortest_path=shortest_path,
+                                                                 hunter_schedule=hunter_schedule,
+                                                                 delay_budget=delay_budget)
+
+    assert actual == expected
+
+
+def test___add_wait_at_index_0():
+    index: int = 0
+    route: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Hoth', 8), ('Hoth', 9), ('Endor', 14)]
+    expected: List = [('Tatooine', 0), ('Tatooine', 1), ('Random', 4), ('Random', 5), ('Hoth', 9), ('Hoth', 10), ('Endor', 15)]
+
+    actual = PredictionService._add_wait_at_index(route=route, index=index)
+
+    assert actual == expected
+
+
+def test___add_wait_at_index_2():
+    index: int = 2
+    route: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Hoth', 8), ('Hoth', 9), ('Endor', 14)]
+    expected: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Random', 5), ('Hoth', 9), ('Hoth', 10),
+                      ('Endor', 15)]
+
+    actual = PredictionService._add_wait_at_index(route=route, index=index)
+
+    assert actual == expected

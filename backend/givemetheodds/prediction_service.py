@@ -27,7 +27,8 @@ class PredictionService(object):
         if earliest_arrival_day > countdown:
             return 0
         else:
-            capture_attempt_count = PredictionService._get_capture_attempt_count(
+            delay_budget: int = countdown - earliest_arrival_day
+            capture_attempt_count = PredictionService._get_lowest_capture_attempt_count(
                 shortest_path=shortest_path, hunter_schedule=hunter_schedule
             )
 
@@ -98,30 +99,53 @@ class PredictionService(object):
 
         for i in range(len(route)):
             current_leg = route[i]
-            new_route.append((current_leg[0], current_leg[1]+deviation))
+            new_route.append((current_leg[0], current_leg[1] + deviation))
             if current_leg != last_item:
-                next_leg = route[i+1]
+                next_leg = route[i + 1]
                 next_flight_distance = next_leg[1] - current_leg[1]
                 if next_flight_distance > fuel_budget:
                     deviation += 1
                     fuel_budget = autonomy
-                    new_route.append((current_leg[0], current_leg[1]+deviation))
+                    new_route.append((current_leg[0], current_leg[1] + deviation))
                 fuel_budget = fuel_budget - next_flight_distance
 
         return new_route
 
     @staticmethod
+    def _get_lowest_capture_attempt_count(shortest_path: List, hunter_schedule: Dict, delay_budget: int):
+        capture_attempts: int = PredictionService._get_capture_attempt_count(shortest_path=shortest_path,
+                                                                                     hunter_schedule=hunter_schedule)
+        if delay_budget != 0 and capture_attempts !=0:
+            pass
+        return capture_attempts
+
+    @staticmethod
     def _get_capture_attempt_count(shortest_path: List, hunter_schedule: Dict):
+        """
+        Gets the number of capture attempts/overlapping stops between the shortest list and the hunter schedule.
+        :param shortest_path: shortest path from departure planet to destination planet
+        :param hunter_schedule: bounty hunter schedule
+        :return:
+        """
         capture_attempts: int = 0
         for stop in shortest_path:
             planet_name = stop[0]
             arrival_day = stop[1]
-            if (
-                    planet_name in hunter_schedule.keys()
-                    and arrival_day in hunter_schedule[planet_name]
-            ):
+            if planet_name in hunter_schedule.keys() and arrival_day in hunter_schedule[planet_name]:
                 capture_attempts += 1
         return capture_attempts
+
+    @staticmethod
+    def _add_wait_at_index(route: List, index: int) -> List:
+        item_at_index = route[index]
+        route.insert(index, item_at_index)
+        # [print(mylist[i]) for i in range(0, 5)]
+        for i in range((index+1), len(route)):
+            original_node = route[i]
+            updated_node = (original_node[0], original_node[1]+1)
+            route[i] = updated_node
+        return route
+
 
     @staticmethod
     def _convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
