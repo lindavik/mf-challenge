@@ -1,10 +1,11 @@
-from collections import defaultdict
-from typing import Dict
+from collections import defaultdict, namedtuple
+from typing import Dict, List
 
 from givemetheodds.converters import PlanetGraph, MissionDetails
 
 
 class PredictionService(object):
+
     def __init__(self, mission_details: MissionDetails):
         self.autonomy: int = mission_details.autonomy
         self.departure: str = mission_details.departure
@@ -17,10 +18,12 @@ class PredictionService(object):
         being captured by bounty hunters. Returns a number ranging from 0 to 100.
         :param countdown: positive integer indicating the number of days before the Death Star annihilates Endor
         :param hunter_schedule: list of all locations where Bounty Hunter are scheduled to be present
-        :return:
+        :return: a positive integer (0-100) indicating the probability (%) of successfully reaching the destination planet
+        without being captured by bounty hunters
         """
         shortest_path = self._get_shortest_path_to_destination()
         earliest_arrival_day = shortest_path[self.destination]
+        # fuel_adjusted_earliest_arrival_day = self._adjust_for_fuelling_needs()
         if earliest_arrival_day > countdown:
             return 0
         else:
@@ -46,33 +49,29 @@ class PredictionService(object):
         nodes = set(self.planet_graph.planets)
 
         while nodes:
-            minNode = None
+            closest_node = None
             for node in nodes:
                 if node in visited:
-                    if minNode is None:
-                        minNode = node
-                    elif visited[node] < visited[minNode]:
-                        minNode = node
-            if minNode is None:
+                    if closest_node is None:
+                        closest_node = node
+                    elif visited[node] < visited[closest_node]:
+                        closest_node = node
+            if closest_node is None:
                 break
 
-            nodes.remove(minNode)
-            current_distance_travelled = visited[minNode]
+            nodes.remove(closest_node)
+            current_distance_travelled = visited[closest_node]
 
-            for edge in self.planet_graph.routes[minNode]:
+            for edge in self.planet_graph.routes[closest_node]:
 
                 new_distance = (
-                        current_distance_travelled + self.planet_graph.distances[(minNode, edge)]
+                        current_distance_travelled + self.planet_graph.distances[(closest_node, edge)]
                 )
-
-                # todo fix: incorrect logic
-                if new_distance > self.autonomy:
-                    new_distance += 1
 
                 if edge not in visited or new_distance < visited[edge]:
                     visited[edge] = new_distance
                     path[edge] = []
-                    path[edge].append(minNode)
+                    path[edge].append(closest_node)
 
         while self.departure not in path[self.destination]:
             for item in path[self.destination]:
@@ -82,12 +81,34 @@ class PredictionService(object):
 
         shortest_path = path[self.destination]
 
-        earliest_arrival_map = {}
+        shortest_route: List = []
         for item in shortest_path:
-            earliest_arrival_map[item] = visited[item]
-        earliest_arrival_map[self.destination] = visited[self.destination]
+            shortest_route.append((item, visited[item]))
+        shortest_route.append((self.destination, visited[self.destination]))
 
-        return earliest_arrival_map
+        # sort shortest route by day in ascending order
+        return sorted(shortest_route, key=lambda item: item[1])
+
+    @staticmethod
+    def _adjust_for_fuelling_needs(route: List, autonomy: int) -> List:
+        new_route: List = []
+        deviation: int = 0
+        last_item = route[-1]
+        fuel_budget: int = autonomy
+
+        for i in range(len(route)):
+            current_leg = route[i]
+            new_route.append((current_leg[0], current_leg[1]+deviation))
+            if current_leg != last_item:
+                next_leg = route[i+1]
+                next_flight_distance = next_leg[1] - current_leg[1]
+                if next_flight_distance > fuel_budget:
+                    deviation += 1
+                    fuel_budget = autonomy
+                    new_route.append((current_leg[0], current_leg[1]+deviation))
+                fuel_budget = fuel_budget - next_flight_distance
+
+        return new_route
 
     @staticmethod
     def _get_capture_attempt_count(shortest_path: Dict, hunter_schedule: Dict):

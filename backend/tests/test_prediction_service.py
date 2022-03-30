@@ -1,9 +1,10 @@
-import os
+from typing import List
 
 import pytest
+
 from givemetheodds.converters import MissionDetails
-from givemetheodds.prediction_service import PredictionService
 from givemetheodds.converters import PlanetGraph
+from givemetheodds.prediction_service import PredictionService
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
@@ -36,13 +37,42 @@ def prediction_service(planet_graph):
     return PredictionService(mission_details=mission_details)
 
 
-def test_get_shortest_path_to_destination_extended(prediction_service):
-    expected_route = {TATOOINE: 0, HOTH: 6, ENDOR: 8}
+def test_get_shortest_path_to_destination(prediction_service):
+    expected_route = [('Tatooine', 0), ('Hoth', 6), ('Endor', 7)]
 
     route = prediction_service._get_shortest_path_to_destination()
 
     assert route == expected_route
 
+
+def test__adjust_for_fuelling_needs():
+    autonomy: int = 6
+    route = [('Tatooine', 0), ('Hoth', 6), ('Endor', 7)]
+    expected = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+
+    actual = PredictionService._adjust_for_fuelling_needs(route=route, autonomy=autonomy)
+
+    assert actual == expected
+
+
+def test__adjust_for_fuelling_needs_v2():
+    autonomy: int = 6
+    route: List = [('Tatooine', 0), ('Random', 3), ('Hoth', 7), ('Endor', 12)]
+    expected: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Hoth', 8), ('Hoth', 9), ('Endor', 14)]
+
+    actual = PredictionService._adjust_for_fuelling_needs(route=route, autonomy=autonomy)
+
+    assert actual == expected
+
+
+def test__sort_route_by_arrival_day_ascending():
+    route = {TATOOINE: 9, HOTH: 3, ENDOR: 5}
+    expected = {TATOOINE: 6, HOTH: 3, ENDOR: 9}
+    # expected = [(TATOOINE, 1), (HOTH, 3), (ENDOR,9)]
+
+    actual = PredictionService._sort_route_by_arrival_day_ascending(route=route)
+
+    assert actual == expected
 
 # def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
 #     autonomy: int = 6
