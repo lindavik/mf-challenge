@@ -21,7 +21,7 @@ class FileReader:
                 with open(path_to_file) as json_file:
                     return json.load(json_file)
             except Exception:
-                logging.exception(f"\nError occurred while loading {path_to_file}.")
+                logging.error(f"Error occurred while loading {path_to_file}.")
                 raise InputFileReadError()
         else:
             logging.error(f"Incorrect file extension. Expected .json, got {file_extension}")

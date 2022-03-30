@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Dict
 
-from converters import PlanetGraph, MissionDetails
+from givemetheodds.converters import PlanetGraph, MissionDetails
 
 
 class PredictionService(object):

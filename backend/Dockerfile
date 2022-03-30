@@ -1,14 +1,17 @@
-#todo update base image to alpine or slim
+#todo update base image to alpine or slim, change to multi stage build
 FROM python:3.8
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install poetry
 
 COPY . .
 
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-interaction
+
 EXPOSE 8000
 
-#CMD ["python", "-m", "uvicorn", "app.main:app"]
-CMD ["python", "-u", "main.py"]
+CMD ["python","-u", "givemetheodds/main.py"]
