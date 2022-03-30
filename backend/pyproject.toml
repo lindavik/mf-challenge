@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "givemetheodds"
 version = "0.1.0"
-description = ""
+description = "A package that gives the odds of the Millennium Falcon reaching the destination planet in time without getting captured by bounty hunters."
 authors = ["lindavik <linda.viksne@gmail.com>"]
 
 [tool.poetry.scripts]

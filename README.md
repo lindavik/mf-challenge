@@ -43,13 +43,15 @@ There is an option to get the predictions using a CLI app.
 To do this you have to do the following steps:
 - check out the project code;
 - install Poetry (see above);
-- run `poetry install` to install the package and its dependencies.
+- navigate into the `backend` directory and run `poetry install` to install the package and its dependencies.
 
 Once done, from the project root directory you can then run
 `give-me-the-odds inputs/millennium-falcon.json inputs/empire.json`
   (assuming your input files are in the `inputs` folder).
+NB! The file location must be relative to the path from which you are running the command.
 
 To get more information on the CLI app simply use the `--help` flag.
+
 
 #### Pre-commit
 
