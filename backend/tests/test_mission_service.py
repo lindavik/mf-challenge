@@ -1,17 +1,9 @@
-import inspect
 import os
-import sys
-
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-srcdir = os.path.join(parentdir, "givemetheodds")
-sys.path.insert(0, srcdir)
-
+from pathlib import Path
 
 import pytest
-from pathlib import Path
-from mission_service import MissionService
+
+from givemetheodds.mission_service import MissionService
 
 
 @pytest.fixture

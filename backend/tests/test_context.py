@@ -1,18 +1,9 @@
-import inspect
 import os
-import sys
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-srcdir = os.path.join(parentdir, "givemetheodds")
-sys.path.insert(0, srcdir)
-
-
-from context import ContextLoader
-from converters import MissionDetails, InterceptedData, PlanetGraph
 
 import pytest
 
+from givemetheodds.context import ContextLoader
+from givemetheodds.converters import MissionDetails, InterceptedData, PlanetGraph
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
@@ -29,6 +20,7 @@ def planet_graph():
     planet_graph.add_route(ENDOR, HOTH, 1)
     planet_graph.add_route(HOTH, TATOOINE, 6)
     return planet_graph
+
 
 @pytest.fixture
 def current_file_path():

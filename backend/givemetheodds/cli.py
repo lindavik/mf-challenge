@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import typer
@@ -25,6 +26,7 @@ def get_odds(
         typer.echo(odds)
     except:
         typer.echo("An error occurred. Please make sure that the file paths and formats are correct.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

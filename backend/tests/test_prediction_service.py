@@ -1,17 +1,9 @@
-import inspect
 import os
-import sys
-
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-srcdir = os.path.join(parentdir, "givemetheodds")
-sys.path.insert(0, srcdir)
 
 import pytest
-from converters import MissionDetails
-from prediction_service import PredictionService
-from converters import PlanetGraph
+from givemetheodds.converters import MissionDetails
+from givemetheodds.prediction_service import PredictionService
+from givemetheodds.converters import PlanetGraph
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
@@ -28,7 +20,6 @@ def planet_graph(request):
     planet_graph.add_route(ENDOR, HOTH, 1)
     planet_graph.add_route(HOTH, TATOOINE, 6)
     return planet_graph
-
 
 
 @pytest.fixture
@@ -98,7 +89,7 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
     [(10, 90), (9, 90), (7, 0), (6, 0)],
 )
 def test_get_probability_of_success(prediction_service, input_countdown, expected, hunter_schedule
-):
+                                    ):
     actual = prediction_service.get_probability_of_success(
         countdown=input_countdown,
         hunter_schedule=hunter_schedule,
