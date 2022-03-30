@@ -5,7 +5,7 @@ description = ""
 authors = ["lindavik <linda.viksne@gmail.com>"]
 
 [tool.poetry.scripts]
-give-me-the-odds2 = "givemetheodds.cli:app"
+give-me-the-odds = "givemetheodds.cli:app"
 
 [tool.poetry.dependencies]
 python = "^3.8"

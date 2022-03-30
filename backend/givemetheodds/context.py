@@ -1,8 +1,8 @@
 import os
 from typing import Dict
 
-from file_reader import FileReader
-from converters import MissionConverter, MissionDetails, InterceptedData, InterceptedDataConverter
+from givemetheodds.file_reader import FileReader
+from givemetheodds.converters import MissionConverter, MissionDetails, InterceptedData, InterceptedDataConverter
 
 
 class ContextLoader:

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from mission_service import MissionService
+from givemetheodds.mission_service import MissionService
 
 
 app = typer.Typer()

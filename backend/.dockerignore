@@ -87,7 +87,5 @@ venv/
 
 .pytest_cache/
 .coverage
-poetry.lock
-pyproject.toml
 tests/
 scripts.py

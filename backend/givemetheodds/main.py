@@ -9,7 +9,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
-from mission_service import MissionService
+from givemetheodds.mission_service import MissionService
 
 logging.getLogger().addHandler(logging.StreamHandler())
 

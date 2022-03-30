@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from prediction_service import PredictionService
-from context import ContextLoader
+from givemetheodds.prediction_service import PredictionService
+from givemetheodds.context import ContextLoader
 
 
 class MissionService:
