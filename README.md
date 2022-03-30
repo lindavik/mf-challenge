@@ -4,6 +4,18 @@ The details of this challenge can be found [here](https://github.com/dataiku/mil
 
 [//]: <> (todo add a more elaborate description) + add how to start everything up, where to put input files, default files used
 
+## Algorithm outline
+
+The algorithm works as follows:
+- Based on the provided input files, Dijkstra's algorithm is used to find the shortest path in a weighted graph.
+Here we regard the planets as nodes and the distances as the weights;
+- Once we have determined the shortest path between the starting node, i.e. the departure planet, and the end node, i.e.
+the destination planet, we assume that this is the best path (even though a longer path with fewer bounty hunters might 
+actually be better from a probability perspective in reality);
+- If the shortest path (adjusted for fuelling needs) exceeds the time limit, i.e. countdown, the probability becomes zero;
+- If the shortest path is within the provided time limit, we continue to calculate the probability of success based on
+the intercepted information on bounty hunter presence.
+
 ## Setup
 
 ### To start the web app
