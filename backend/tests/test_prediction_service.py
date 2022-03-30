@@ -2,16 +2,16 @@ import inspect
 import os
 import sys
 
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
+srcdir = os.path.join(parentdir, "givemetheodds")
+sys.path.insert(0, srcdir)
 
 import pytest
-
-from backend.converters import MissionDetails
-from backend.prediction_service import PredictionService
-from backend.converters import PlanetGraph
+from converters import MissionDetails
+from prediction_service import PredictionService
+from converters import PlanetGraph
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"

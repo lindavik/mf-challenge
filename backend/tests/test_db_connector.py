@@ -4,13 +4,14 @@ import sys
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
+srcdir = os.path.join(parentdir, "givemetheodds")
+sys.path.insert(0, srcdir)
 
 from sqlite3 import Connection
 
 import pytest
 
-from db_connector import DBConnector, DatabaseFileNotFound
+from givemetheodds.db_connector import DBConnector, DatabaseFileNotFound
 
 
 @pytest.fixture

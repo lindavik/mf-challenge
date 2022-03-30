@@ -4,13 +4,14 @@ import sys
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
+srcdir = os.path.join(parentdir, "givemetheodds")
+sys.path.insert(0, srcdir)
 
 from typing import Dict
 
 import pytest
 
-from converters import MissionDetails, MissionConverter, InterceptedData, InterceptedDataConverter, PlanetGraph
+from givemetheodds.converters import MissionDetails, MissionConverter, InterceptedData, InterceptedDataConverter, PlanetGraph
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
