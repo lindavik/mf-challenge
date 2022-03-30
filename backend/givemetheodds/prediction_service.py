@@ -15,8 +15,8 @@ class PredictionService(object):
         """
         Calculates the probability of successfully reaching the destination planet without
         being captured by bounty hunters. Returns a number ranging from 0 to 100.
-        :param countdown:
-        :param hunter_schedule:
+        :param countdown: positive integer indicating the number of days before the Death Star annihilates Endor
+        :param hunter_schedule: list of all locations where Bounty Hunter are scheduled to be present
         :return:
         """
         shortest_path = self._get_shortest_path_to_destination()
@@ -24,7 +24,6 @@ class PredictionService(object):
         if earliest_arrival_day > countdown:
             return 0
         else:
-            # travel_budget = countdown - shortest_path
             capture_attempt_count = PredictionService._get_capture_attempt_count(
                 shortest_path=shortest_path, hunter_schedule=hunter_schedule
             )
