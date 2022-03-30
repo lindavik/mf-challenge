@@ -15,4 +15,7 @@ class MissionService:
             intercepted_data = ContextLoader.load_intercepted_data_from_file(file_path=str(intercepted_data))
             return self.prediction_service.get_probability_of_success(countdown=intercepted_data.countdown,
                                                                       hunter_schedule=intercepted_data.bounty_hunter_schedule)
-
+        else:
+            intercepted_data = ContextLoader.load_intercepted_data(raw_intercepted_data=intercepted_data)
+            return self.prediction_service.get_probability_of_success(countdown=intercepted_data.countdown,
+                                                                      hunter_schedule=intercepted_data.bounty_hunter_schedule)
