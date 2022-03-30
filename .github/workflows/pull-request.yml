@@ -23,12 +23,12 @@ jobs:
         run: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
-        working-directory: givemetheodds
+        working-directory: backend
 
       - name: Run tests
         run: pytest
-        working-directory: givemetheodds
+        working-directory: backend
 
       - name: Get coverage
         run: pytest --cov-fail-under=90 .
-        working-directory: givemetheodds
+        working-directory: backend
