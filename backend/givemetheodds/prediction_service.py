@@ -22,8 +22,8 @@ class PredictionService(object):
         without being captured by bounty hunters
         """
         shortest_path = self._get_shortest_path_to_destination()
-        adjusted_path = PredictionService._adjust_for_fuelling_needs(route=shortest_path, autonomy=self.autonomy)
-        earliest_arrival_day = adjusted_path[-1][1]
+        adjusted_path: List = PredictionService._adjust_for_fuelling_needs(route=shortest_path, autonomy=self.autonomy)
+        earliest_arrival_day: int = adjusted_path[-1][1]
         if earliest_arrival_day > countdown:
             return 0
         else:
