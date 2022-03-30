@@ -8,10 +8,10 @@ services:
     depends_on:
       - backend
     volumes:
-        - ./storage:/storage
+        - ./inputs:/inputs
   backend:
     build: backend
     ports:
       - 8000:8000
     volumes:
-      - ./storage:/storage
+      - ./inputs:/inputs
