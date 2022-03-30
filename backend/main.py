@@ -50,7 +50,6 @@ class InterceptedDataModel(BaseModel):
 @app.post("/v1/mission-success/")
 async def calculate_mission_success_odds(item: InterceptedDataModel):
     intercepted_data = jsonable_encoder(item)
-    logging.info(f"Intercepted raw data: {intercepted_data}")
     return mission_service.get_mission_success_odds(intercepted_data=intercepted_data)
 
 

@@ -9,10 +9,8 @@ sys.path.insert(0, parentdir)
 
 import pytest
 
-from converters import MissionDetails
-from prediction_service import PredictionService
-
-
+from backend.converters import MissionDetails
+from backend.prediction_service import PredictionService
 from backend.converters import PlanetGraph
 
 TATOOINE = "Tatooine"
