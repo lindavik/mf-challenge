@@ -1,7 +1,11 @@
-from collections import defaultdict, namedtuple
+import logging
+from collections import defaultdict
 from typing import Dict, List
 
 from givemetheodds.converters import PlanetGraph, MissionDetails
+
+
+logging.getLogger().addHandler(logging.StreamHandler())
 
 
 class PredictionService(object):
@@ -29,7 +33,7 @@ class PredictionService(object):
         else:
             delay_budget: int = countdown - earliest_arrival_day
             capture_attempt_count = PredictionService._get_lowest_capture_attempt_count(
-                shortest_path=shortest_path, hunter_schedule=hunter_schedule
+                shortest_path=adjusted_path, hunter_schedule=hunter_schedule, delay_budget=delay_budget
             )
 
             probability_of_capture: float = PredictionService._get_probability_of_capture(
@@ -113,11 +117,34 @@ class PredictionService(object):
 
     @staticmethod
     def _get_lowest_capture_attempt_count(shortest_path: List, hunter_schedule: Dict, delay_budget: int):
-        capture_attempts: int = PredictionService._get_capture_attempt_count(shortest_path=shortest_path,
-                                                                                     hunter_schedule=hunter_schedule)
-        if delay_budget != 0 and capture_attempts !=0:
-            pass
-        return capture_attempts
+        capture_attempt_count: int = PredictionService._get_capture_attempt_count(shortest_path=shortest_path,
+                                                                             hunter_schedule=hunter_schedule)
+        if delay_budget != 0 and capture_attempt_count != 0:
+            for j in range(0, len(shortest_path)):
+                route = shortest_path.copy()
+                for i in range(0, delay_budget):
+                    new_route = PredictionService._add_wait_at_index(route=route, index=j)
+                    new_capture_attempt_count = PredictionService._get_capture_attempt_count(
+                        shortest_path=new_route,
+                        hunter_schedule=hunter_schedule
+                    )
+                    if new_capture_attempt_count < capture_attempt_count:
+                        if new_capture_attempt_count == 0:
+                            print(f"\nCapture attempt count: {new_capture_attempt_count}. "
+                                  f"\n Shortest route: {shortest_path}"
+                                  f"\n Route: {new_route}. "
+                                  f"\nHunter schedule: {hunter_schedule}. "
+                                  f"\nDelay budget: {delay_budget}")
+                            return new_capture_attempt_count
+                        else:
+                            print(f"\nCapture attempt count: {new_capture_attempt_count}. "
+                                  f"\n Shortest route: {shortest_path}"
+                                  f"\n Route: {new_route}. "
+                                  f"\nHunter schedule: {hunter_schedule}. "
+                                  f"\nDelay budget: {delay_budget}")
+                            capture_attempt_count = new_capture_attempt_count
+
+        return capture_attempt_count
 
     @staticmethod
     def _get_capture_attempt_count(shortest_path: List, hunter_schedule: Dict):
@@ -137,15 +164,14 @@ class PredictionService(object):
 
     @staticmethod
     def _add_wait_at_index(route: List, index: int) -> List:
-        item_at_index = route[index]
-        route.insert(index, item_at_index)
-        # [print(mylist[i]) for i in range(0, 5)]
-        for i in range((index+1), len(route)):
-            original_node = route[i]
-            updated_node = (original_node[0], original_node[1]+1)
-            route[i] = updated_node
-        return route
-
+        route_copy = route.copy()
+        item_at_index = route_copy[index]
+        route_copy.insert(index, item_at_index)
+        for i in range((index + 1), len(route_copy)):
+            original_node = route_copy[i]
+            updated_node = (original_node[0], original_node[1] + 1)
+            route_copy[i] = updated_node
+        return route_copy
 
     @staticmethod
     def _convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
