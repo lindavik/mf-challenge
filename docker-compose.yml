@@ -7,8 +7,6 @@ services:
       - 8501:8501
     depends_on:
       - backend
-#    volumes:
-#        - ./backend/inputs_v2:/inputs_v2
   backend:
     build: backend
     ports:
