@@ -1,10 +1,10 @@
-import os
 from typing import List
 
 import pytest
+
 from givemetheodds.converters import MissionDetails
-from givemetheodds.prediction_service import PredictionService
 from givemetheodds.converters import PlanetGraph
+from givemetheodds.prediction_service import PredictionService
 
 TATOOINE = "Tatooine"
 DAGOBAH = "Dagobah"
@@ -38,7 +38,7 @@ def prediction_service(planet_graph):
 
 
 def test_get_shortest_path_to_destination(prediction_service):
-    expected_route = [('Tatooine', 0), ('Hoth', 6), ('Endor', 7)]
+    expected_route = [(TATOOINE, 0), (HOTH, 6), (ENDOR, 7)]
 
     route = prediction_service._get_shortest_path_to_destination()
 
@@ -68,8 +68,8 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
 
 def test__adjust_for_fuelling_needs_multiple():
     autonomy: int = 6
-    route: List = [('Tatooine', 0), ('Random', 3), ('Hoth', 7), ('Endor', 12)]
-    expected: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Hoth', 8), ('Hoth', 9), ('Endor', 14)]
+    route: List = [(TATOOINE, 0), ('Random', 3), (HOTH, 7), (ENDOR, 12)]
+    expected: List = [(TATOOINE, 0), ('Random', 3), ('Random', 4), (HOTH, 8), (HOTH, 9), (ENDOR, 14)]
 
     actual = PredictionService._adjust_for_fuelling_needs(route=route, autonomy=autonomy)
 

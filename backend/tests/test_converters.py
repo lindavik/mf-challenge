@@ -38,8 +38,8 @@ def test_get_mission_details(current_file_path, planet_graph):
     }
     directory: str = os.path.join(current_file_path, "sample_inputs")
     expected: MissionDetails = MissionDetails(autonomy=6,
-                                              departure="Tatooine",
-                                              arrival="Endor",
+                                              departure=TATOOINE,
+                                              arrival=ENDOR,
                                               routes=planet_graph)
 
     actual: MissionDetails = MissionConverter.map_to_mission_details(details, directory=directory)
@@ -70,8 +70,8 @@ def test_get_mission_details_with_unknown_fields(current_file_path, planet_graph
     }
 
     expected: MissionDetails = MissionDetails(autonomy=6,
-                                              departure="Tatooine",
-                                              arrival="Endor",
+                                              departure=TATOOINE,
+                                              arrival=ENDOR,
                                               routes=planet_graph)
 
     actual: MissionDetails = MissionConverter.map_to_mission_details(details, directory)
