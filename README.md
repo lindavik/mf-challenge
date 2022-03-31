@@ -2,11 +2,9 @@
 
 The details of this challenge can be found [here](https://github.com/dataiku/millenium-falcon-challenge).
 
-[//]: <> (todo add a more elaborate description) + add how to start everything up, where to put input files, default files used
-
 ## Setup
 
-### To start the web app
+### Starting The Web App
 
 If you have Docker and docker-compose installed locally, you can start the application using:
 ```docker-compose up -d```
@@ -19,8 +17,17 @@ To stop and remove the containers, networks, volumes, and images created by the 
 ### Backend
 
 The backend is created using [FastApi](https://fastapi.tiangolo.com/).
-#todo to run the app details
+To locally run the backend separately (for `docker-compose` see above), from the project root directory run 
+`python backend/givemetheodds/main.py`. 
+You can also build a Docker image in the `backend` directory and run it locally.
+
+Without reconfiguring the ports, the app should spin up and be accessible on port 8000: ```localhost:8000```
 When running the backend locally, the API docs can be accessed via ```localhost:8000/docs```.
+
+You can add custom startup files by adding them to the `backend/inputs` folder in the project root:
+ - mission details must be named `millennium-falcon.json`;
+ - the planet database must be named `universe.db`.
+ A default file for each is already available in the folder.
 
 #### Poetry
 
