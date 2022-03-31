@@ -115,7 +115,7 @@ def test__get_capture_attempt_count_with_capture(hunter_schedule):
     expected: int = 1
 
     actual = PredictionService._get_capture_attempt_count(
-        shortest_path=shortest_path, hunter_schedule=hunter_schedule
+        route=shortest_path, hunter_schedule=hunter_schedule
     )
 
     assert actual == expected
@@ -127,7 +127,7 @@ def test__get_capture_attempt_count_without_capture():
     expected: int = 0
 
     actual = PredictionService._get_capture_attempt_count(
-        shortest_path=shortest_path, hunter_schedule=hunter_schedule
+        route=shortest_path, hunter_schedule=hunter_schedule
     )
 
     assert actual == expected

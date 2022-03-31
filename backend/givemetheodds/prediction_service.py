@@ -34,13 +34,19 @@ class PredictionService(object):
             return PredictionService.NO_CHANCE_OF_SUCCESS
         else:
             capture_attempt_count = PredictionService._get_capture_attempt_count(
-                shortest_path=adjusted_path, hunter_schedule=hunter_schedule
+                route=adjusted_path, hunter_schedule=hunter_schedule
             )
             if capture_attempt_count == 0:
                 return PredictionService.BEST_CHANCE_OF_SUCCESS
 
-            # todo
-            # PredictionService._get_optimal_path_to_destination()
+            delay_budget: int = countdown - earliest_arrival_day
+            optimal_path: List = PredictionService._get_optimal_path_to_destination(
+                bounty_hunter_schedule=hunter_schedule, delay_budget=delay_budget
+            )
+
+            capture_attempt_count = PredictionService._get_capture_attempt_count(
+                route=optimal_path, hunter_schedule=hunter_schedule
+            )
 
             probability_of_capture: float = PredictionService._get_probability_of_capture(
                 capture_attempt_count=capture_attempt_count
@@ -100,6 +106,10 @@ class PredictionService(object):
         return sorted(shortest_route, key=lambda item: item[1])
 
     @staticmethod
+    def _get_optimal_path_to_destination(bounty_hunter_schedule: dict, delay_budget: int):
+        return []
+
+    @staticmethod
     def _adjust_for_fuelling_needs(route: List, autonomy: int) -> List:
         new_route: List = []
         deviation: int = 0
@@ -121,15 +131,15 @@ class PredictionService(object):
         return new_route
 
     @staticmethod
-    def _get_capture_attempt_count(shortest_path: List, hunter_schedule: Dict):
+    def _get_capture_attempt_count(route: List, hunter_schedule: Dict):
         """
         Gets the number of capture attempts/overlapping stops between the shortest list and the hunter schedule.
-        :param shortest_path: shortest path from departure planet to destination planet
+        :param route: path from departure planet to destination planet
         :param hunter_schedule: bounty hunter schedule
         :return: number of capture attempts by bounty hunters
         """
         capture_attempts: int = 0
-        for stop in shortest_path:
+        for stop in route:
             planet_name = stop[0]
             arrival_day = stop[1]
             if planet_name in hunter_schedule.keys() and arrival_day in hunter_schedule[planet_name]:
