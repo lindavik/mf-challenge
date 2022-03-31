@@ -26,8 +26,8 @@ app = FastAPI(
 
 @app.on_event("startup")
 def get_mission_service():
-    file_path = os.path.dirname(os.path.realpath(__file__))
-    mission_details_file_path: str = os.path.join(file_path, "default_inputs/millennium-falcon.json")
+    file_path: Path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    mission_details_file_path: str = os.path.join(file_path, "inputs/millennium-falcon.json")
     return MissionService(mission_details_file_path=Path(mission_details_file_path))
 
 
