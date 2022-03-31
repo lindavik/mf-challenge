@@ -1,10 +1,15 @@
+import collections
 import logging
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Deque
 
 from givemetheodds.converters import PlanetGraph, MissionDetails
 
 logging.getLogger().addHandler(logging.StreamHandler())
+
+# Python program to print all paths from a source to destination.
+
+from collections import defaultdict
 
 
 class PredictionService(object):
@@ -16,6 +21,7 @@ class PredictionService(object):
         self.departure: str = mission_details.departure
         self.destination: str = mission_details.arrival
         self.planet_graph: PlanetGraph = mission_details.routes
+        self.paths = []
 
     def get_probability_of_success(self, countdown: int, hunter_schedule: Dict) -> int:
         """
@@ -40,8 +46,8 @@ class PredictionService(object):
                 return PredictionService.BEST_CHANCE_OF_SUCCESS
 
             delay_budget: int = countdown - earliest_arrival_day
-            optimal_path: List = PredictionService._get_optimal_path_to_destination(
-                bounty_hunter_schedule=hunter_schedule, delay_budget=delay_budget
+            optimal_path: List = self._get_optimal_path_to_destination(
+                bounty_hunter_schedule=hunter_schedule, delay_budget=delay_budget, max_length=countdown
             )
 
             capture_attempt_count = PredictionService._get_capture_attempt_count(
@@ -105,9 +111,57 @@ class PredictionService(object):
         # sort shortest route by day in ascending order
         return sorted(shortest_route, key=lambda item: item[1])
 
-    @staticmethod
-    def _get_optimal_path_to_destination(bounty_hunter_schedule: dict, delay_budget: int):
-        return []
+
+    def _get_optimal_path_to_destination(self,
+                                         bounty_hunter_schedule: dict,
+                                         delay_budget: int,
+                                         max_length: int
+                                         ):
+        graph = self.planet_graph.routes
+        visited = set()  # Set to keep track of visited nodes.
+        node = "Tatooine"
+        distances = self.planet_graph.distances
+
+        paths = []
+
+        return paths
+
+    def _get_all_paths(self, current_node, destination_node, visited, path, paths):
+        visited[current_node] = True
+        path.append(current_node)
+
+        if current_node == destination_node:
+            print(path)
+            paths.append(path)
+            # return path
+        else:
+            for neighbour_node in self.planet_graph.routes[current_node]:
+                if not visited[neighbour_node]:
+                    self._get_all_paths(neighbour_node, destination_node, visited, path, paths)
+        path.pop()
+        visited[current_node] = False
+
+    def _get_all_paths_between_two_nodes(self, start_node, destination_node):
+        visited = {planet:False for planet in self.planet_graph.planets}
+        paths = []
+        path = []
+        self._get_all_paths(start_node, destination_node, visited, path, paths)
+        return paths
+
+    def _get_travel_plan(self, path: List):
+        total = 0
+        current_fuel: int = self.autonomy
+        refuelling_day: int = 1
+        for i in range(0, len(path)-1):
+            next_hop_in_days = self.planet_graph.distances[(path[i], path[i+1])]
+            if current_fuel < next_hop_in_days:
+                total += next_hop_in_days + refuelling_day
+                current_fuel += self.autonomy - next_hop_in_days
+            else:
+                total += next_hop_in_days
+                current_fuel -= next_hop_in_days
+
+        return total
 
     @staticmethod
     def _adjust_for_fuelling_needs(route: List, autonomy: int) -> List:

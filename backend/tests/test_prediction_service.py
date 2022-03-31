@@ -45,6 +45,14 @@ def test_get_shortest_path_to_destination(prediction_service):
     assert route == expected_route
 
 
+def test__get_all_paths_between_two_nodes(prediction_service):
+    expected_route = [(TATOOINE, 0), (HOTH, 6), (ENDOR, 7)]
+
+    result = prediction_service._get_all_paths_between_two_nodes(TATOOINE, ENDOR)
+
+    assert result == expected_route
+
+
 @pytest.fixture
 def planet_graph_minimal():
     planet_graph = PlanetGraph()
@@ -131,3 +139,13 @@ def test__get_capture_attempt_count_without_capture():
     )
 
     assert actual == expected
+
+
+def test_get_travel_plan(prediction_service):
+    input = ['Tatooine', 'Hoth', 'Endor']
+    expected = 8
+
+    actual = prediction_service._get_travel_plan(input)
+
+    assert expected == actual
+
