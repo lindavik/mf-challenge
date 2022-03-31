@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import pytest
 from givemetheodds.converters import MissionDetails
@@ -36,31 +37,12 @@ def prediction_service(planet_graph):
     return PredictionService(mission_details=mission_details)
 
 
-def test_get_shortest_path_to_destination_extended(prediction_service):
-    expected_route = {TATOOINE: 0, HOTH: 6, ENDOR: 8}
+def test_get_shortest_path_to_destination(prediction_service):
+    expected_route = [('Tatooine', 0), ('Hoth', 6), ('Endor', 7)]
 
     route = prediction_service._get_shortest_path_to_destination()
 
     assert route == expected_route
-
-
-# def test_get_probability_of_success(planet_graph_extended, hunter_schedule):
-#     autonomy: int = 6
-#     departure = TATOOINE
-#     destination = ENDOR
-#     countdown = 7
-#     expected = 0
-#
-#     actual = get_probability_of_success(
-#         countdown=countdown,
-#         graph=planet_graph_extended,
-#         departure=departure,
-#         destination=destination,
-#         autonomy=autonomy,
-#         hunter_schedule=hunter_schedule,
-#     )
-#
-#     assert actual == expected
 
 
 @pytest.fixture
@@ -77,16 +59,26 @@ def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
                                                      routes=planet_graph_minimal)
     prediction_service = PredictionService(mission_details=mission_details)
 
-    expected_route = {TATOOINE: 0, ENDOR: 6}
+    expected_route = [(TATOOINE, 0), (ENDOR, 6)]
 
     route = prediction_service._get_shortest_path_to_destination()
 
     assert route == expected_route
 
 
+def test__adjust_for_fuelling_needs_multiple():
+    autonomy: int = 6
+    route: List = [('Tatooine', 0), ('Random', 3), ('Hoth', 7), ('Endor', 12)]
+    expected: List = [('Tatooine', 0), ('Random', 3), ('Random', 4), ('Hoth', 8), ('Hoth', 9), ('Endor', 14)]
+
+    actual = PredictionService._adjust_for_fuelling_needs(route=route, autonomy=autonomy)
+
+    assert actual == expected
+
+
 @pytest.mark.parametrize(
     "input_countdown, expected",
-    [(10, 90), (9, 90), (7, 0), (6, 0)],
+    [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0)],
 )
 def test_get_probability_of_success(prediction_service, input_countdown, expected, hunter_schedule
                                     ):
@@ -119,7 +111,7 @@ def test_convert_capture_probability_to_success_rate(input, expected):
 
 
 def test__get_capture_attempt_count_with_capture(hunter_schedule):
-    shortest_path = {TATOOINE: 0, HOTH: 7, ENDOR: 9}
+    shortest_path: List = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 1
 
     actual = PredictionService._get_capture_attempt_count(
@@ -131,7 +123,7 @@ def test__get_capture_attempt_count_with_capture(hunter_schedule):
 
 def test__get_capture_attempt_count_without_capture():
     hunter_schedule = {TATOOINE: {6, 7, 8}}
-    shortest_path = {TATOOINE: 0, HOTH: 7, ENDOR: 9}
+    shortest_path = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 0
 
     actual = PredictionService._get_capture_attempt_count(
@@ -139,30 +131,3 @@ def test__get_capture_attempt_count_without_capture():
     )
 
     assert actual == expected
-
-# @pytest.fixture
-# def planet_graph_extended_v2():
-#     planet_graph = PlanetGraph()
-#
-#     planet_graph.add_route(TATOOINE, DAGOBAH,6)
-#     planet_graph.add_route(DAGOBAH, HOTH, 4)
-#     planet_graph.add_route(HOTH, ENDOR, 2)
-#
-#     return planet_graph
-
-
-# def test_get_shortest_path_to_destination_extended_v2(planet_graph_extended_v2):
-#     autonomy: int = 6
-#     departure = TATOOINE
-#     destination = ENDOR
-#
-#     expected_route = {TATOOINE: 0, DAGOBAH: 6, HOTH: 11, ENDOR: 13}
-#
-#     route = get_shortest_path_to_destination(
-#         planet_graph=planet_graph_extended_v2,
-#         departure=departure,
-#         destination=destination,
-#         autonomy=autonomy,
-#     )
-#
-#     assert route == expected_route

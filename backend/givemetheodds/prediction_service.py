@@ -1,10 +1,16 @@
+import logging
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, List
 
 from givemetheodds.converters import PlanetGraph, MissionDetails
 
+logging.getLogger().addHandler(logging.StreamHandler())
+
 
 class PredictionService(object):
+    NO_CHANCE_OF_SUCCESS: int = 0
+    BEST_CHANCE_OF_SUCCESS: int = 100
+
     def __init__(self, mission_details: MissionDetails):
         self.autonomy: int = mission_details.autonomy
         self.departure: str = mission_details.departure
@@ -15,19 +21,26 @@ class PredictionService(object):
         """
         Calculates the probability of successfully reaching the destination planet without
         being captured by bounty hunters. Returns a number ranging from 0 to 100.
-        :param countdown:
-        :param hunter_schedule:
-        :return:
+        :param countdown: positive integer indicating the number of days before the Death Star annihilates Endor
+        :param hunter_schedule: list of all locations where Bounty Hunter are scheduled to be present
+        :return: a non-negative integer (0-100) indicating the probability (%) of successfully reaching the destination planet
+        without being captured by bounty hunters
         """
         shortest_path = self._get_shortest_path_to_destination()
-        earliest_arrival_day = shortest_path[self.destination]
+        adjusted_path: List = PredictionService._adjust_for_fuelling_needs(route=shortest_path, autonomy=self.autonomy)
+        earliest_arrival_day: int = adjusted_path[-1][1]
+
         if earliest_arrival_day > countdown:
-            return 0
+            return PredictionService.NO_CHANCE_OF_SUCCESS
         else:
-            # travel_budget = countdown - shortest_path
             capture_attempt_count = PredictionService._get_capture_attempt_count(
-                shortest_path=shortest_path, hunter_schedule=hunter_schedule
+                shortest_path=adjusted_path, hunter_schedule=hunter_schedule
             )
+            if capture_attempt_count == 0:
+                return PredictionService.BEST_CHANCE_OF_SUCCESS
+
+            # todo
+            # PredictionService._get_optimal_path_to_destination()
 
             probability_of_capture: float = PredictionService._get_probability_of_capture(
                 capture_attempt_count=capture_attempt_count
@@ -39,7 +52,6 @@ class PredictionService(object):
     def _get_shortest_path_to_destination(self):
         """
         Determines the shortest path from the departure planet to the destination planet.
-        Disclaimer: provides with only one route, if there are two equally long shortest routes, only one will be returned.
         :return:
         """
         visited = {self.departure: 0}
@@ -47,33 +59,29 @@ class PredictionService(object):
         nodes = set(self.planet_graph.planets)
 
         while nodes:
-            minNode = None
+            closest_node = None
             for node in nodes:
                 if node in visited:
-                    if minNode is None:
-                        minNode = node
-                    elif visited[node] < visited[minNode]:
-                        minNode = node
-            if minNode is None:
+                    if closest_node is None:
+                        closest_node = node
+                    elif visited[node] < visited[closest_node]:
+                        closest_node = node
+            if closest_node is None:
                 break
 
-            nodes.remove(minNode)
-            current_distance_travelled = visited[minNode]
+            nodes.remove(closest_node)
+            current_distance_travelled = visited[closest_node]
 
-            for edge in self.planet_graph.routes[minNode]:
+            for edge in self.planet_graph.routes[closest_node]:
 
                 new_distance = (
-                        current_distance_travelled + self.planet_graph.distances[(minNode, edge)]
+                        current_distance_travelled + self.planet_graph.distances[(closest_node, edge)]
                 )
-
-                # todo fix: incorrect logic
-                if new_distance > self.autonomy:
-                    new_distance += 1
 
                 if edge not in visited or new_distance < visited[edge]:
                     visited[edge] = new_distance
                     path[edge] = []
-                    path[edge].append(minNode)
+                    path[edge].append(closest_node)
 
         while self.departure not in path[self.destination]:
             for item in path[self.destination]:
@@ -83,23 +91,48 @@ class PredictionService(object):
 
         shortest_path = path[self.destination]
 
-        earliest_arrival_map = {}
+        shortest_route: List = []
         for item in shortest_path:
-            earliest_arrival_map[item] = visited[item]
-        earliest_arrival_map[self.destination] = visited[self.destination]
+            shortest_route.append((item, visited[item]))
+        shortest_route.append((self.destination, visited[self.destination]))
 
-        return earliest_arrival_map
+        # sort shortest route by day in ascending order
+        return sorted(shortest_route, key=lambda item: item[1])
 
     @staticmethod
-    def _get_capture_attempt_count(shortest_path: Dict, hunter_schedule: Dict):
+    def _adjust_for_fuelling_needs(route: List, autonomy: int) -> List:
+        new_route: List = []
+        deviation: int = 0
+        last_item = route[-1]
+        fuel_budget: int = autonomy
+
+        for i in range(len(route)):
+            current_leg = route[i]
+            new_route.append((current_leg[0], current_leg[1] + deviation))
+            if current_leg != last_item:
+                next_leg = route[i + 1]
+                next_flight_distance = next_leg[1] - current_leg[1]
+                if next_flight_distance > fuel_budget:
+                    deviation += 1
+                    fuel_budget = autonomy
+                    new_route.append((current_leg[0], current_leg[1] + deviation))
+                fuel_budget = fuel_budget - next_flight_distance
+
+        return new_route
+
+    @staticmethod
+    def _get_capture_attempt_count(shortest_path: List, hunter_schedule: Dict):
+        """
+        Gets the number of capture attempts/overlapping stops between the shortest list and the hunter schedule.
+        :param shortest_path: shortest path from departure planet to destination planet
+        :param hunter_schedule: bounty hunter schedule
+        :return: number of capture attempts by bounty hunters
+        """
         capture_attempts: int = 0
-        for planet in shortest_path.items():
-            planet_name = planet[0]
-            arrival_day = planet[1]
-            if (
-                    planet_name in hunter_schedule.keys()
-                    and arrival_day in hunter_schedule[planet_name]
-            ):
+        for stop in shortest_path:
+            planet_name = stop[0]
+            arrival_day = stop[1]
+            if planet_name in hunter_schedule.keys() and arrival_day in hunter_schedule[planet_name]:
                 capture_attempts += 1
         return capture_attempts
 
