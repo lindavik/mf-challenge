@@ -141,11 +141,10 @@ def test__get_capture_attempt_count_without_capture():
     assert actual == expected
 
 
-def test_get_travel_plan(prediction_service):
+def test__get_travel_in_days(prediction_service):
     input = ['Tatooine', 'Hoth', 'Endor']
     expected = 8
 
-    actual = prediction_service._get_travel_plan(input)
+    actual = prediction_service._get_travel_in_days(input)
 
     assert expected == actual
-

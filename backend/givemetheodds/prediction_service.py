@@ -126,29 +126,29 @@ class PredictionService(object):
 
         return paths
 
-    def _get_all_paths(self, current_node, destination_node, visited, path, paths):
+    def _get_all_paths(self, current_node, destination_node, visited, path, countdown):
         visited[current_node] = True
         path.append(current_node)
 
-        if current_node == destination_node:
+        travel_time: int = self._get_travel_in_days(path)
+        if travel_time > countdown:
+            print(f"{path} exceeded countdown")
+        elif current_node == destination_node:
             print(path)
-            paths.append(path)
-            # return path
         else:
             for neighbour_node in self.planet_graph.routes[current_node]:
                 if not visited[neighbour_node]:
-                    self._get_all_paths(neighbour_node, destination_node, visited, path, paths)
+                    self._get_all_paths(neighbour_node, destination_node, visited, path, countdown)
         path.pop()
         visited[current_node] = False
 
-    def _get_all_paths_between_two_nodes(self, start_node, destination_node):
+    def _get_all_paths_between_two_nodes(self, start_node, destination_node, countdown):
         visited = {planet:False for planet in self.planet_graph.planets}
-        paths = []
         path = []
-        self._get_all_paths(start_node, destination_node, visited, path, paths)
-        return paths
+        self._get_all_paths(start_node, destination_node, visited, path, countdown)
 
-    def _get_travel_plan(self, path: List):
+
+    def _get_travel_in_days(self, path: List):
         total = 0
         current_fuel: int = self.autonomy
         refuelling_day: int = 1
