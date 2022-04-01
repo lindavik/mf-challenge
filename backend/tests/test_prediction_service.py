@@ -45,13 +45,18 @@ def test_get_shortest_path_to_destination(prediction_service):
     assert route == expected_route
 
 
-def test__get_all_paths_between_two_nodes(prediction_service):
-    countdown: int = 8
-    expected_route = [['Tatooine', 'Hoth', 'Endor']]
+@pytest.mark.parametrize(
+    "input_countdown, expected",
+    [
+        (9, [['Tatooine', 'Dagobah', 'Hoth', 'Endor'], ['Tatooine', 'Hoth', 'Endor']]),
+        (8, [['Tatooine', 'Hoth', 'Endor']]),
+        (7, [])
+    ],
+)
+def test__get_all_paths_between_two_nodes(prediction_service, input_countdown, expected):
+    prediction_service._get_all_paths_between_two_nodes(TATOOINE, ENDOR, input_countdown)
 
-    result = prediction_service._get_all_paths_between_two_nodes(TATOOINE, ENDOR, countdown)
-
-    assert prediction_service.paths == expected_route
+    assert prediction_service.paths == expected
 
 
 @pytest.fixture
@@ -149,3 +154,19 @@ def test__get_travel_in_days(prediction_service):
     actual = prediction_service._get_travel_in_days(input)
 
     assert expected == actual
+
+
+@pytest.mark.parametrize(
+    "input_path, expected",
+    [
+        (['Tatooine', 'Dagobah', 'Hoth', 'Endor'],
+         [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]),
+        (['Tatooine', 'Hoth', 'Endor'],
+         [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)])
+    ],
+)
+def test__get_detailed_travel_plan(input_path, expected, prediction_service):
+
+    actual = prediction_service._get_detailed_travel_plan(input_path)
+
+    assert actual == expected

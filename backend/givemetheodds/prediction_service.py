@@ -1,20 +1,14 @@
-import collections
 import logging
-from collections import defaultdict
-from typing import Dict, List, Deque
+from typing import Dict, List
 
 from givemetheodds.converters import PlanetGraph, MissionDetails
 
 logging.getLogger().addHandler(logging.StreamHandler())
 
-# Python program to print all paths from a source to destination.
-
 from collections import defaultdict
 
 
 class PredictionService(object):
-    NO_CHANCE_OF_SUCCESS: int = 0
-    BEST_CHANCE_OF_SUCCESS: int = 100
 
     def __init__(self, mission_details: MissionDetails):
         self.autonomy: int = mission_details.autonomy
@@ -36,30 +30,52 @@ class PredictionService(object):
         adjusted_path: List = PredictionService._adjust_for_fuelling_needs(route=shortest_path, autonomy=self.autonomy)
         earliest_arrival_day: int = adjusted_path[-1][1]
 
-        if earliest_arrival_day > countdown:
-            return PredictionService.NO_CHANCE_OF_SUCCESS
-        else:
-            capture_attempt_count = PredictionService._get_capture_attempt_count(
-                route=adjusted_path, hunter_schedule=hunter_schedule
-            )
-            if capture_attempt_count == 0:
-                return PredictionService.BEST_CHANCE_OF_SUCCESS
+        self._get_all_paths_between_two_nodes(countdown=countdown,
+                                              destination_node=self.destination,
+                                              start_node=self.departure)
+        all_possible_paths: List = self.paths
 
+        detailed_travel_plans = PredictionService._get_detailed_travel_plan(self.paths)
+
+        capture_attempt_count = PredictionService._get_capture_attempt_count(
+            route=adjusted_path, hunter_schedule=hunter_schedule
+        )
+
+        if capture_attempt_count != 0:
             delay_budget: int = countdown - earliest_arrival_day
             optimal_path: List = self._get_optimal_path_to_destination(
                 bounty_hunter_schedule=hunter_schedule, delay_budget=delay_budget, max_length=countdown
             )
-
             capture_attempt_count = PredictionService._get_capture_attempt_count(
                 route=optimal_path, hunter_schedule=hunter_schedule
             )
 
-            probability_of_capture: float = PredictionService._get_probability_of_capture(
-                capture_attempt_count=capture_attempt_count
-            )
-            return PredictionService._convert_capture_probability_to_success_rate(
-                probability_of_capture=probability_of_capture
-            )
+        probability_of_capture: float = PredictionService._get_probability_of_capture(
+            capture_attempt_count=capture_attempt_count)
+        return PredictionService._convert_capture_probability_to_success_rate(
+            probability_of_capture=probability_of_capture
+        )
+
+    def _get_detailed_travel_plan(self, path: List) -> List:
+        travel_plan = []
+        total = 0
+        current_fuel: int = self.autonomy
+        refuelling_day: int = 1
+
+        for i in range(0, len(path) - 1):
+            travel_plan.append((path[i], total))
+
+            next_hop_in_days = self.planet_graph.distances[(path[i], path[i + 1])]
+
+            if current_fuel < next_hop_in_days:
+                total += refuelling_day
+                current_fuel += self.autonomy
+                travel_plan.append((path[i], total))
+
+            total += next_hop_in_days
+            current_fuel -= next_hop_in_days
+        travel_plan.append((path[-1], total))
+        return travel_plan
 
     def _get_shortest_path_to_destination(self):
         """
@@ -111,7 +127,6 @@ class PredictionService(object):
         # sort shortest route by day in ascending order
         return sorted(shortest_route, key=lambda item: item[1])
 
-
     def _get_optimal_path_to_destination(self,
                                          bounty_hunter_schedule: dict,
                                          delay_budget: int,
@@ -143,20 +158,17 @@ class PredictionService(object):
         path.pop()
         visited[current_node] = False
 
-
     def _get_all_paths_between_two_nodes(self, start_node, destination_node, countdown):
-        visited = {planet:False for planet in self.planet_graph.planets}
+        visited = {planet: False for planet in self.planet_graph.planets}
         path = []
-        result = self._get_all_paths(start_node, destination_node, visited, path, countdown)
-        print(result)
-
+        self._get_all_paths(start_node, destination_node, visited, path, countdown)
 
     def _get_travel_in_days(self, path: List):
         total = 0
         current_fuel: int = self.autonomy
         refuelling_day: int = 1
-        for i in range(0, len(path)-1):
-            next_hop_in_days = self.planet_graph.distances[(path[i], path[i+1])]
+        for i in range(0, len(path) - 1):
+            next_hop_in_days = self.planet_graph.distances[(path[i], path[i + 1])]
             if current_fuel < next_hop_in_days:
                 total += next_hop_in_days + refuelling_day
                 current_fuel += self.autonomy - next_hop_in_days
