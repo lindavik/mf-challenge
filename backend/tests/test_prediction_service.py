@@ -46,11 +46,12 @@ def test_get_shortest_path_to_destination(prediction_service):
 
 
 def test__get_all_paths_between_two_nodes(prediction_service):
-    expected_route = [(TATOOINE, 0), (HOTH, 6), (ENDOR, 7)]
+    countdown: int = 8
+    expected_route = [['Tatooine', 'Hoth', 'Endor']]
 
-    result = prediction_service._get_all_paths_between_two_nodes(TATOOINE, ENDOR)
+    result = prediction_service._get_all_paths_between_two_nodes(TATOOINE, ENDOR, countdown)
 
-    assert result == expected_route
+    assert prediction_service.paths == expected_route
 
 
 @pytest.fixture

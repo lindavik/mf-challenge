@@ -135,6 +135,7 @@ class PredictionService(object):
             print(f"{path} exceeded countdown")
         elif current_node == destination_node:
             print(path)
+            self.paths.append(path.copy())
         else:
             for neighbour_node in self.planet_graph.routes[current_node]:
                 if not visited[neighbour_node]:
@@ -142,10 +143,12 @@ class PredictionService(object):
         path.pop()
         visited[current_node] = False
 
+
     def _get_all_paths_between_two_nodes(self, start_node, destination_node, countdown):
         visited = {planet:False for planet in self.planet_graph.planets}
         path = []
-        self._get_all_paths(start_node, destination_node, visited, path, countdown)
+        result = self._get_all_paths(start_node, destination_node, visited, path, countdown)
+        print(result)
 
 
     def _get_travel_in_days(self, path: List):
