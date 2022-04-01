@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from givemetheodds.converters import PlanetGraph, MissionDetails
 
@@ -241,3 +241,56 @@ class PredictionService(object):
             result += (9 ** (i)) / (10 ** (i + 1))
 
         return result
+
+    # @staticmethod
+    # def _can_avoid_bounty_hunters(stop: Tuple, delay_budget: int, hunter_schedule: Dict):
+    #
+    #     if stop[0] in hunter_schedule.keys():
+    #         for day in range(stop[1], stop[1] + delay_budget + 1):
+    #             if day not in hunter_schedule[stop[0]]:
+    #                 return True
+    #     else:
+    #         return True
+    #     return False
+
+    @staticmethod
+    def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):
+        for i in range(delay_budget):
+            if (stop[0], stop[1]+1) not in hunter_schedule:
+                return True
+        return False
+
+    @staticmethod
+    def _optimize_path(path, hunter_schedule, delay_budget):
+        waiting_day = 1
+        new_path: List = []
+        delay = 0
+
+        if delay_budget == 0:
+            return path
+
+        for stop in path:
+            if new_path and \
+                    stop in hunter_schedule and \
+                    PredictionService._can_avoid_bounty_hunters_set(stop, delay_budget, hunter_schedule) and \
+                    delay_budget != 0:
+
+                last_stop = new_path[-1]
+                new_stop = (last_stop[0], last_stop[1] + waiting_day)
+                new_path.append(new_stop)
+                delay_budget -= waiting_day
+                delay += waiting_day
+                stop = (stop[0], stop[1]+delay)
+
+                while stop in hunter_schedule and delay_budget != 0:
+                    last_stop = new_path[-1]
+                    new_stop = (last_stop[0], last_stop[1] + waiting_day)
+                    new_path.append(new_stop)
+                    delay_budget -= waiting_day
+                    delay += waiting_day
+
+                new_path.append((stop[0], stop[1]))
+
+            else:
+                new_path.append((stop[0], stop[1]+delay))
+        return new_path

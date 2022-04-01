@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import pytest
 
@@ -166,7 +166,94 @@ def test__get_travel_in_days(prediction_service):
     ],
 )
 def test__get_detailed_travel_plan(input_path, expected, prediction_service):
-
     actual = prediction_service._get_detailed_travel_plan(input_path)
+
+    assert actual == expected
+
+
+@pytest.fixture
+def hunter_schedule_set():
+    return {(HOTH, 6), (HOTH, 7), (HOTH, 8)}
+
+
+# @pytest.mark.parametrize(
+#     "input_stop, expected",
+#     [
+#         (('Tatooine', 0), True)
+#         # (('Tatooine', 0), 1), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+#         # # (['Tatooine', 'Dagobah', 'Hoth', 'Endor'],
+#         # #  [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]),
+#         # # (['Tatooine', 'Hoth', 'Endor'],
+#         # #  [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)])
+#     ],
+# )
+
+#
+# def test__can_avoid_bounty_hunters(hunter_schedule):
+#     delay_budget = 2
+#     stop = ('Tatooine', 0)
+#     expected = True
+#
+#     actual = PredictionService._can_avoid_bounty_hunters(stop, delay_budget=delay_budget,
+#                                                          hunter_schedule=hunter_schedule)
+#
+#     assert actual == expected
+#
+#
+# def test__can_avoid_bounty_hunters2(hunter_schedule):
+#     delay_budget = 2
+#     stop = (HOTH, 6)
+#     expected = False
+#
+#     actual = PredictionService._can_avoid_bounty_hunters(stop, delay_budget=delay_budget,
+#                                                          hunter_schedule=hunter_schedule)
+#
+#     assert actual == expected
+
+
+def test__can_avoid_bounty_hunters_set1(hunter_schedule_set):
+    delay_budget = 2
+    stop = (TATOOINE, 0)
+    expected = True
+
+    actual = PredictionService._can_avoid_bounty_hunters_set(stop,
+                                                             delay_budget=delay_budget,
+                                                             hunter_schedule=hunter_schedule_set)
+
+    assert actual == expected
+
+
+def test__can_avoid_bounty_hunters_set2(hunter_schedule_set):
+    delay_budget = 2
+    stop = (HOTH, 6)
+    expected = False
+
+    actual = PredictionService._can_avoid_bounty_hunters_set(stop,
+                                                             delay_budget=delay_budget,
+                                                             hunter_schedule=hunter_schedule_set)
+
+    assert actual == expected
+
+
+def test__optimize_path_v1(hunter_schedule_set):
+    delay_budget: int = 2
+    path = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+    expected = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+
+    actual = PredictionService._optimize_path(path,
+                                              hunter_schedule=hunter_schedule_set,
+                                              delay_budget=delay_budget)
+
+    assert actual == expected
+
+
+def test__optimize_path_v2(hunter_schedule_set):
+    delay_budget: int = 2
+    path = [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]
+    expected = [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Dagobah', 8), ('Hoth', 9), ('Endor', 10)]
+
+    actual = PredictionService._optimize_path(path,
+                                              hunter_schedule=hunter_schedule_set,
+                                              delay_budget=delay_budget)
 
     assert actual == expected
