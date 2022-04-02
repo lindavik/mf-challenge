@@ -33,28 +33,32 @@ class PredictionService(object):
         self._get_all_paths_between_two_nodes(countdown=countdown,
                                               destination_node=self.destination,
                                               start_node=self.departure)
-        all_possible_paths: List = self.paths
 
-        detailed_travel_plans = PredictionService._get_detailed_travel_plan(self.paths)
+        detailed_travel_plans = self._get_detailed_travel_plan(self.paths)
+        delay_budget = countdown - earliest_arrival_day
+        optimized_paths = [self._optimize_path(plan, hunter_schedule, delay_budget=delay_budget) for plan in detailed_travel_plans]
 
-        capture_attempt_count = PredictionService._get_capture_attempt_count(
-            route=adjusted_path, hunter_schedule=hunter_schedule
-        )
-
-        if capture_attempt_count != 0:
-            delay_budget: int = countdown - earliest_arrival_day
-            optimal_path: List = self._get_optimal_path_to_destination(
-                bounty_hunter_schedule=hunter_schedule, delay_budget=delay_budget, max_length=countdown
-            )
-            capture_attempt_count = PredictionService._get_capture_attempt_count(
-                route=optimal_path, hunter_schedule=hunter_schedule
-            )
+        capture_attempt_count: int = PredictionService._get_lowest_capture_count(hunter_schedule=hunter_schedule,
+                                                                                 optimized_paths=optimized_paths)
 
         probability_of_capture: float = PredictionService._get_probability_of_capture(
             capture_attempt_count=capture_attempt_count)
         return PredictionService._convert_capture_probability_to_success_rate(
             probability_of_capture=probability_of_capture
         )
+
+    @staticmethod
+    def _get_lowest_capture_count(hunter_schedule, optimized_paths):
+        best_current = None
+        for path in optimized_paths:
+            capture_attempt_count = PredictionService._get_capture_attempt_count(
+                route=path, hunter_schedule=hunter_schedule
+            )
+            if best_current == 0:
+                break
+            if best_current is None or capture_attempt_count < best_current:
+                best_current = capture_attempt_count
+        return best_current
 
     def _get_detailed_travel_plan(self, path: List) -> List:
         travel_plan = []
@@ -200,7 +204,7 @@ class PredictionService(object):
         return new_route
 
     @staticmethod
-    def _get_capture_attempt_count(route: List, hunter_schedule: Dict):
+    def _get_capture_attempt_count(route: List, hunter_schedule: List):
         """
         Gets the number of capture attempts/overlapping stops between the shortest list and the hunter schedule.
         :param route: path from departure planet to destination planet
@@ -209,10 +213,8 @@ class PredictionService(object):
         """
         capture_attempts: int = 0
         for stop in route:
-            planet_name = stop[0]
-            arrival_day = stop[1]
-            if planet_name in hunter_schedule.keys() and arrival_day in hunter_schedule[planet_name]:
-                capture_attempts += 1
+            if stop in hunter_schedule:
+                capture_attempts +=1
         return capture_attempts
 
     @staticmethod
@@ -242,16 +244,6 @@ class PredictionService(object):
 
         return result
 
-    # @staticmethod
-    # def _can_avoid_bounty_hunters(stop: Tuple, delay_budget: int, hunter_schedule: Dict):
-    #
-    #     if stop[0] in hunter_schedule.keys():
-    #         for day in range(stop[1], stop[1] + delay_budget + 1):
-    #             if day not in hunter_schedule[stop[0]]:
-    #                 return True
-    #     else:
-    #         return True
-    #     return False
 
     @staticmethod
     def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):

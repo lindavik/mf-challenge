@@ -124,19 +124,19 @@ def test_convert_capture_probability_to_success_rate(input, expected):
     assert actual == expected
 
 
-def test__get_capture_attempt_count_with_capture(hunter_schedule):
+def test__get_capture_attempt_count_with_capture(hunter_schedule_set):
     shortest_path: List = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 1
 
     actual = PredictionService._get_capture_attempt_count(
-        route=shortest_path, hunter_schedule=hunter_schedule
+        route=shortest_path, hunter_schedule=hunter_schedule_set
     )
 
     assert actual == expected
 
 
 def test__get_capture_attempt_count_without_capture():
-    hunter_schedule = {TATOOINE: {6, 7, 8}}
+    hunter_schedule = [(TATOOINE, 6), (TATOOINE, 7), (TATOOINE, 8)]
     shortest_path = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 0
 
@@ -174,41 +174,6 @@ def test__get_detailed_travel_plan(input_path, expected, prediction_service):
 @pytest.fixture
 def hunter_schedule_set():
     return {(HOTH, 6), (HOTH, 7), (HOTH, 8)}
-
-
-# @pytest.mark.parametrize(
-#     "input_stop, expected",
-#     [
-#         (('Tatooine', 0), True)
-#         # (('Tatooine', 0), 1), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
-#         # # (['Tatooine', 'Dagobah', 'Hoth', 'Endor'],
-#         # #  [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]),
-#         # # (['Tatooine', 'Hoth', 'Endor'],
-#         # #  [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)])
-#     ],
-# )
-
-#
-# def test__can_avoid_bounty_hunters(hunter_schedule):
-#     delay_budget = 2
-#     stop = ('Tatooine', 0)
-#     expected = True
-#
-#     actual = PredictionService._can_avoid_bounty_hunters(stop, delay_budget=delay_budget,
-#                                                          hunter_schedule=hunter_schedule)
-#
-#     assert actual == expected
-#
-#
-# def test__can_avoid_bounty_hunters2(hunter_schedule):
-#     delay_budget = 2
-#     stop = (HOTH, 6)
-#     expected = False
-#
-#     actual = PredictionService._can_avoid_bounty_hunters(stop, delay_budget=delay_budget,
-#                                                          hunter_schedule=hunter_schedule)
-#
-#     assert actual == expected
 
 
 def test__can_avoid_bounty_hunters_set1(hunter_schedule_set):
@@ -255,5 +220,18 @@ def test__optimize_path_v2(hunter_schedule_set):
     actual = PredictionService._optimize_path(path,
                                               hunter_schedule=hunter_schedule_set,
                                               delay_budget=delay_budget)
+
+    assert actual == expected
+
+
+def test__get_lowest_capture_count(hunter_schedule_set):
+    optimized_paths: List = [
+        [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Dagobah', 8), ('Hoth', 9), ('Endor', 10)],
+        [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+    ]
+    expected = 0
+
+    actual = PredictionService._get_lowest_capture_count(hunter_schedule=hunter_schedule_set,
+                                                         optimized_paths=optimized_paths)
 
     assert actual == expected
