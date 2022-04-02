@@ -193,8 +193,8 @@ class PredictionService:
 
     @staticmethod
     def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):
-        for i in range(0, delay_budget):
-            if (stop[0], stop[1] + 1) not in hunter_schedule:
+        for day in range(delay_budget+1):
+            if (stop[0], stop[1] + day) not in hunter_schedule:
                 return True
         return False
 
@@ -205,12 +205,15 @@ class PredictionService:
         waiting_day = 1
         new_path: List = []
         delay = 0
+        previous_stop = None
 
         if delay_budget == 0:
             return path
 
         for stop in path:
-            if (
+            if previous_stop is not None and stop[0] == previous_stop[0]:
+                new_path.append((stop[0], stop[1] + delay))
+            elif (
                 new_path
                 and stop in hunter_schedule
                 and PredictionService._can_avoid_bounty_hunters_set(
@@ -218,7 +221,6 @@ class PredictionService:
                 )
                 and delay_budget != 0
             ):
-
                 last_stop = new_path[-1]
                 new_stop = (last_stop[0], last_stop[1] + waiting_day)
                 new_path.append(new_stop)
@@ -237,4 +239,5 @@ class PredictionService:
 
             else:
                 new_path.append((stop[0], stop[1] + delay))
+            previous_stop = stop
         return new_path

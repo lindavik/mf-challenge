@@ -87,4 +87,5 @@ You can get an insight into the way the work was organized in
 this [planning board](https://github.com/lindavik/mf-challenge/projects/1). Things that I would consider doing, if I had
 the luxury of more time:
 
-- End-to-end testing using Cucumber + Selenium + Gherkin for a more Behaviour Driven Development (BDD) style
+- Right now the route optimisation to avoid bounty hunters is very simplistic and flawed, if I had more time, I would try different more different approaches;
+- End-to-end testing using Cucumber + Selenium + Gherkin for a more Behaviour Driven Development (BDD) style.
