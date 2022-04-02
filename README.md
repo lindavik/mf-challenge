@@ -1,7 +1,5 @@
 # Millennium Falcon Challenge
 
-## Problem description
-
 The Death Star - the Empire's ultimate weapon - is almost operational and is currently approaching the Endor planet. The
 countdown has started.
 
@@ -11,23 +9,10 @@ join the Rebel fleet and destroy the Death Star before it annihilates the planet
 The Empire has hired the best bounty hunters in the galaxy to capture the Millennium Falcon and stop it from joining the
 rebel fleet...
 
-This project provides with a solution to calculate the odds of the Millennium Falcon reaching Endor in time and saving
-the galaxy.
-
 You can read more about the challenge [here](https://github.com/dataiku/millenium-falcon-challenge).
 
-## Solution outline
-
-The solution algorithm works as follows:
-
-- Based on the provided input files, Dijkstra's algorithm is used to find the shortest path in a weighted graph. Here we
-  regard the planets as nodes and the distances as the weights;
-- Once we have determined the shortest path between the starting node, i.e. the departure planet, and the end node, i.e.
-  the destination planet. If the shortest path (adjusted for fuelling needs) exceeds the time limit, i.e. countdown, the
-  probability of success becomes zero. If the adjusted shortest path is within the time limit and there are no bounty
-  hunters on this route, the probability of success becomes 100.
-- If the shortest path is within the provided time limit but there are bounty hunters on the route, we pivot from
-  calculating the shortest route to calculating the optimal route using Depth First Search.
+The solution proposed here uses a Depth First Search based algorithm to calculate the odds of the Millennium Falcon 
+reaching Endor in time and saving the galaxy.
 
 ## Setup
 
