@@ -57,7 +57,7 @@ class FieldConverter:
         field = details.get(field_name)
         if not field:
             logging.exception(f"{field} Field must be provided")
-            raise Exception(f"{field} Field must be provided")
+            raise MissingRequiredFieldException(field_name)
         return field
 
     @staticmethod
@@ -66,12 +66,30 @@ class FieldConverter:
             logging.exception(
                 f"{field_name} must be an int; however, was: {type(field)}"
             )
-            raise Exception(f"{field_name} must be an integer")
+            raise FieldValidationException(f"{field_name} must be an integer")
         elif not (field > 0):
             logging.exception(
                 f"{field_name} must be a greater than 0; however, was: {field_name}"
             )
-            raise Exception(f"{field_name} must be a greater than 0")
+            raise FieldValidationException(f"{field_name} must be a greater than 0")
+
+
+class MissingRequiredFieldException(Exception):
+    """
+    Exception raised when the required field is not found.
+    """
+    def __init__(self,  field_name: str):
+        self.message = f"{field_name} field must be provided"
+        super().__init__(self.message)
+
+
+class FieldValidationException(Exception):
+    """
+    Exception raised when the required field does not meet validation requirements.
+    """
+    def __init__(self,  message):
+        self.message = message
+        super().__init__(self.message)
 
 
 class MissionConverter(FieldConverter):
