@@ -125,10 +125,7 @@ def test_planet_graph(planet_graph):
 
 
 def test_map_to_intercepted_data():
-    bounty_hunter_schedule = {
-        HOTH: {6, 7, 8},
-        ENDOR: {9}
-    }
+    bounty_hunter_schedule = [(HOTH, 6), (HOTH, 7), (HOTH, 8), (ENDOR, 9)]
     raw_data = {
         "countdown": 7,
         "bounty_hunters": [
@@ -152,10 +149,7 @@ def test_process_schedule():
         {"planet": "Hoth", "day": 8},
         {"planet": "Endor", "day": 9}
     ]
-    expected = {
-        HOTH: {6, 7, 8},
-        ENDOR: {9}
-    }
+    expected = [(HOTH, 6), (HOTH, 7), (HOTH, 8), (ENDOR, 9)]
 
     actual = InterceptedDataConverter._process_schedule(raw_schedule=raw_schedule)
 

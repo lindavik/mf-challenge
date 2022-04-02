@@ -26,17 +26,15 @@ class PredictionService(object):
         :return: a non-negative integer (0-100) indicating the probability (%) of successfully reaching the destination planet
         without being captured by bounty hunters
         """
-        shortest_path = self._get_shortest_path_to_destination()
-        adjusted_path: List = PredictionService._adjust_for_fuelling_needs(route=shortest_path, autonomy=self.autonomy)
-        earliest_arrival_day: int = adjusted_path[-1][1]
 
         self._get_all_paths_between_two_nodes(countdown=countdown,
                                               destination_node=self.destination,
                                               start_node=self.departure)
+        if not self.paths:
+            return 0
 
-        detailed_travel_plans = self._get_detailed_travel_plan(self.paths)
-        delay_budget = countdown - earliest_arrival_day
-        optimized_paths = [self._optimize_path(plan, hunter_schedule, delay_budget=delay_budget) for plan in detailed_travel_plans]
+        detailed_travel_plans = [self._get_detailed_travel_plan(plan) for plan in self.paths]
+        optimized_paths = [self._optimize_path(plan, hunter_schedule, countdown=countdown) for plan in detailed_travel_plans]
 
         capture_attempt_count: int = PredictionService._get_lowest_capture_count(hunter_schedule=hunter_schedule,
                                                                                  optimized_paths=optimized_paths)
@@ -66,6 +64,9 @@ class PredictionService(object):
         current_fuel: int = self.autonomy
         refuelling_day: int = 1
 
+        if not path:
+            return travel_plan
+
         for i in range(0, len(path) - 1):
             travel_plan.append((path[i], total))
 
@@ -80,70 +81,6 @@ class PredictionService(object):
             current_fuel -= next_hop_in_days
         travel_plan.append((path[-1], total))
         return travel_plan
-
-    def _get_shortest_path_to_destination(self):
-        """
-        Determines the shortest path from the departure planet to the destination planet.
-        :return:
-        """
-        visited = {self.departure: 0}
-        path = defaultdict(list)
-        nodes = set(self.planet_graph.planets)
-
-        while nodes:
-            closest_node = None
-            for node in nodes:
-                if node in visited:
-                    if closest_node is None:
-                        closest_node = node
-                    elif visited[node] < visited[closest_node]:
-                        closest_node = node
-            if closest_node is None:
-                break
-
-            nodes.remove(closest_node)
-            current_distance_travelled = visited[closest_node]
-
-            for edge in self.planet_graph.routes[closest_node]:
-
-                new_distance = (
-                        current_distance_travelled + self.planet_graph.distances[(closest_node, edge)]
-                )
-
-                if edge not in visited or new_distance < visited[edge]:
-                    visited[edge] = new_distance
-                    path[edge] = []
-                    path[edge].append(closest_node)
-
-        while self.departure not in path[self.destination]:
-            for item in path[self.destination]:
-                item_source = path[item]
-                for subitem in item_source:
-                    path[self.destination].append(subitem)
-
-        shortest_path = path[self.destination]
-
-        shortest_route: List = []
-        for item in shortest_path:
-            shortest_route.append((item, visited[item]))
-        shortest_route.append((self.destination, visited[self.destination]))
-
-        # sort shortest route by day in ascending order
-        return sorted(shortest_route, key=lambda item: item[1])
-
-    def _get_optimal_path_to_destination(self,
-                                         bounty_hunter_schedule: dict,
-                                         delay_budget: int,
-                                         max_length: int
-                                         ):
-        graph = self.planet_graph.routes
-        visited = set()  # Set to keep track of visited nodes.
-        node = "Tatooine"
-        distances = self.planet_graph.distances
-
-        paths = []
-
-        return paths
 
     def _get_all_paths(self, current_node, destination_node, visited, path, countdown):
         visited[current_node] = True
@@ -244,16 +181,17 @@ class PredictionService(object):
 
         return result
 
-
     @staticmethod
     def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):
-        for i in range(delay_budget):
+        for i in range(0, delay_budget):
             if (stop[0], stop[1]+1) not in hunter_schedule:
                 return True
         return False
 
     @staticmethod
-    def _optimize_path(path, hunter_schedule, delay_budget):
+    def _optimize_path(path, hunter_schedule, countdown):
+        arrival_day: int = path[-1][1]
+        delay_budget: int = countdown - arrival_day
         waiting_day = 1
         new_path: List = []
         delay = 0

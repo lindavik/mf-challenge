@@ -24,25 +24,12 @@ def planet_graph(request):
 
 
 @pytest.fixture
-def hunter_schedule():
-    return {HOTH: {6, 7, 8}}
-
-
-@pytest.fixture
 def prediction_service(planet_graph):
     mission_details: MissionDetails = MissionDetails(autonomy=6,
                                                      arrival=ENDOR,
                                                      departure=TATOOINE,
                                                      routes=planet_graph)
     return PredictionService(mission_details=mission_details)
-
-
-def test_get_shortest_path_to_destination(prediction_service):
-    expected_route = [(TATOOINE, 0), (HOTH, 6), (ENDOR, 7)]
-
-    route = prediction_service._get_shortest_path_to_destination()
-
-    assert route == expected_route
 
 
 @pytest.mark.parametrize(
@@ -66,20 +53,6 @@ def planet_graph_minimal():
     return planet_graph
 
 
-def test_get_shortest_path_to_destination_minimal(planet_graph_minimal):
-    mission_details: MissionDetails = MissionDetails(autonomy=6,
-                                                     arrival=ENDOR,
-                                                     departure=TATOOINE,
-                                                     routes=planet_graph_minimal)
-    prediction_service = PredictionService(mission_details=mission_details)
-
-    expected_route = [(TATOOINE, 0), (ENDOR, 6)]
-
-    route = prediction_service._get_shortest_path_to_destination()
-
-    assert route == expected_route
-
-
 def test__adjust_for_fuelling_needs_multiple():
     autonomy: int = 6
     route: List = [(TATOOINE, 0), ('Random', 3), (HOTH, 7), (ENDOR, 12)]
@@ -92,13 +65,13 @@ def test__adjust_for_fuelling_needs_multiple():
 
 @pytest.mark.parametrize(
     "input_countdown, expected",
-    [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0)],
+    [(10, 100), (9, 90), (8, 81),(7, 0), (6, 0)],
 )
-def test_get_probability_of_success(prediction_service, input_countdown, expected, hunter_schedule
+def test_get_probability_of_success(prediction_service, input_countdown, expected, hunter_schedule_set
                                     ):
     actual = prediction_service.get_probability_of_success(
         countdown=input_countdown,
-        hunter_schedule=hunter_schedule,
+        hunter_schedule=hunter_schedule_set,
     )
 
     assert actual == expected
@@ -148,10 +121,10 @@ def test__get_capture_attempt_count_without_capture():
 
 
 def test__get_travel_in_days(prediction_service):
-    input = ['Tatooine', 'Hoth', 'Endor']
+    route = ['Tatooine', 'Hoth', 'Endor']
     expected = 8
 
-    actual = prediction_service._get_travel_in_days(input)
+    actual = prediction_service._get_travel_in_days(route)
 
     assert expected == actual
 
@@ -201,25 +174,25 @@ def test__can_avoid_bounty_hunters_set2(hunter_schedule_set):
 
 
 def test__optimize_path_v1(hunter_schedule_set):
-    delay_budget: int = 2
+    countdown: int = 10
     path = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
     expected = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
 
     actual = PredictionService._optimize_path(path,
                                               hunter_schedule=hunter_schedule_set,
-                                              delay_budget=delay_budget)
+                                              countdown=countdown)
 
     assert actual == expected
 
 
 def test__optimize_path_v2(hunter_schedule_set):
-    delay_budget: int = 2
+    countdown: int = 11
     path = [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]
     expected = [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Dagobah', 8), ('Hoth', 9), ('Endor', 10)]
 
     actual = PredictionService._optimize_path(path,
                                               hunter_schedule=hunter_schedule_set,
-                                              delay_budget=delay_budget)
+                                              countdown=countdown)
 
     assert actual == expected
 

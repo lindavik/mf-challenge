@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import pytest
 
@@ -42,10 +43,8 @@ def test_load_mission_details(current_file_path, planet_graph):
 
 def test_load_intercepted_data(current_file_path, planet_graph):
     file_path: str = os.path.join(current_file_path, "sample_inputs/empire.json")
-    expected_schedule = {
-        TATOOINE: {4},
-        DAGOBAH: {5}
-    }
+    expected_schedule: List = [(TATOOINE, 4), (DAGOBAH, 5)]
+
     expected = InterceptedData(countdown=6,
                                bounty_hunter_schedule=expected_schedule)
 
