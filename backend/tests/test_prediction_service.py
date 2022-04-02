@@ -41,7 +41,7 @@ def prediction_service(planet_graph):
 def test__get_all_paths_between_two_nodes(
     prediction_service, input_countdown, expected
 ):
-    prediction_service._get_all_paths_between_two_nodes(
+    prediction_service._generate_all_paths_between_two_planets(
         TATOOINE, ENDOR, input_countdown
     )
 
@@ -76,7 +76,7 @@ def test__adjust_for_fuelling_needs_multiple():
 
 @pytest.mark.parametrize(
     "input_countdown, expected",
-    [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0)],
+    [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0), (4, 0)],
 )
 def test_get_probability_of_success(
     prediction_service, input_countdown, expected, hunter_schedule_set

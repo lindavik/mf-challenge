@@ -23,13 +23,13 @@ class PredictionService:
         :return: a non-negative integer (0-100) indicating the probability (%) of successfully reaching the destination planet
         without being captured by bounty hunters
         """
-
-        self._get_all_paths_between_two_nodes(
-            countdown=countdown,
-            destination_node=self.destination,
-            start_node=self.departure,
+        self._generate_all_paths_between_two_planets(
+            time_limit=countdown,
+            destination_planet=self.destination,
+            start_planet=self.departure,
         )
         if not self.paths:
+            logging.info("No paths were found")
             return 0
 
         detailed_travel_plans = [
@@ -43,7 +43,6 @@ class PredictionService:
         capture_attempt_count: int = PredictionService._get_lowest_capture_count(
             hunter_schedule=hunter_schedule, optimized_paths=optimized_paths
         )
-
         probability_of_capture: float = PredictionService._get_probability_of_capture(
             capture_attempt_count=capture_attempt_count
         )
@@ -51,18 +50,47 @@ class PredictionService:
             probability_of_capture=probability_of_capture
         )
 
-    @staticmethod
-    def _get_lowest_capture_count(hunter_schedule, optimized_paths):
-        best_current = None
-        for path in optimized_paths:
-            capture_attempt_count = PredictionService._get_capture_attempt_count(
-                route=path, hunter_schedule=hunter_schedule
-            )
-            if best_current == 0:
-                break
-            if best_current is None or capture_attempt_count < best_current:
-                best_current = capture_attempt_count
-        return best_current
+    def _generate_all_paths_between_two_planets(self, start_planet: str, destination_planet: str,
+                                                time_limit: int) -> None:
+        """
+        Generates a list of all paths between two planets.
+        :param start_planet: the start planet
+        :param destination_planet: the destination planet
+        :param time_limit: the time limit in days to reach the destination planet
+        :return: None
+        """
+        visited = {planet: False for planet in self.planet_graph.planets}
+        path = []
+        self._generate_all_paths(start_planet, destination_planet, visited, path, time_limit)
+
+    def _generate_all_paths(self, current_planet: str, destination_planet: str, visited: Dict, path: List,
+                            time_limit: int) -> None:
+        """
+        Generates a list of all paths between the planets.
+        :param current_planet: the current planet
+        :param destination_planet: the destination planet
+        :param visited: a dictionary with the planet as the key and boolean of if it was visited
+        :param path: the path
+        :param time_limit: the time limit
+        :return: None
+        """
+        visited[current_planet] = True
+        path.append(current_planet)
+
+        travel_time: int = self._get_travel_in_days(path)
+        if travel_time > time_limit:
+            logging.info(f"{path} exceeded the time limit.")
+        elif current_planet == destination_planet:
+            logging.info(f"Found path: {path}")
+            self.paths.append(path.copy())
+        else:
+            for neighbour_node in self.planet_graph.routes[current_planet]:
+                if not visited[neighbour_node]:
+                    self._generate_all_paths(
+                        neighbour_node, destination_planet, visited, path, time_limit
+                    )
+        path.pop()
+        visited[current_planet] = False
 
     def _get_detailed_travel_plan(self, path: List) -> List:
         travel_plan = []
@@ -88,30 +116,6 @@ class PredictionService:
         travel_plan.append((path[-1], total))
         return travel_plan
 
-    def _get_all_paths(self, current_node, destination_node, visited, path, countdown):
-        visited[current_node] = True
-        path.append(current_node)
-
-        travel_time: int = self._get_travel_in_days(path)
-        if travel_time > countdown:
-            print(f"{path} exceeded countdown")
-        elif current_node == destination_node:
-            print(path)
-            self.paths.append(path.copy())
-        else:
-            for neighbour_node in self.planet_graph.routes[current_node]:
-                if not visited[neighbour_node]:
-                    self._get_all_paths(
-                        neighbour_node, destination_node, visited, path, countdown
-                    )
-        path.pop()
-        visited[current_node] = False
-
-    def _get_all_paths_between_two_nodes(self, start_node, destination_node, countdown):
-        visited = {planet: False for planet in self.planet_graph.planets}
-        path = []
-        self._get_all_paths(start_node, destination_node, visited, path, countdown)
-
     def _get_travel_in_days(self, path: List):
         total = 0
         current_fuel: int = self.autonomy
@@ -126,6 +130,19 @@ class PredictionService:
                 current_fuel -= next_hop_in_days
 
         return total
+
+    @staticmethod
+    def _get_lowest_capture_count(hunter_schedule, optimized_paths):
+        best_current = None
+        for path in optimized_paths:
+            capture_attempt_count = PredictionService._get_capture_attempt_count(
+                route=path, hunter_schedule=hunter_schedule
+            )
+            if best_current == 0:
+                break
+            if best_current is None or capture_attempt_count < best_current:
+                best_current = capture_attempt_count
+        return best_current
 
     @staticmethod
     def _adjust_for_fuelling_needs(route: List, autonomy: int) -> List:
@@ -164,7 +181,7 @@ class PredictionService:
 
     @staticmethod
     def _convert_capture_probability_to_success_rate(
-        probability_of_capture: float,
+            probability_of_capture: float,
     ) -> int:
         """
         Converts the probability of capture to the success rate.
@@ -193,7 +210,7 @@ class PredictionService:
 
     @staticmethod
     def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):
-        for day in range(delay_budget+1):
+        for day in range(delay_budget + 1):
             if (stop[0], stop[1] + day) not in hunter_schedule:
                 return True
         return False
@@ -214,12 +231,12 @@ class PredictionService:
             if previous_stop is not None and stop[0] == previous_stop[0]:
                 new_path.append((stop[0], stop[1] + delay))
             elif (
-                new_path
-                and stop in hunter_schedule
-                and PredictionService._can_avoid_bounty_hunters_set(
-                    stop, delay_budget, hunter_schedule
-                )
-                and delay_budget != 0
+                    new_path
+                    and stop in hunter_schedule
+                    and PredictionService._can_avoid_bounty_hunters_set(
+                stop, delay_budget, hunter_schedule
+            )
+                    and delay_budget != 0
             ):
                 last_stop = new_path[-1]
                 new_stop = (last_stop[0], last_stop[1] + waiting_day)
