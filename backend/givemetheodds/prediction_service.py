@@ -1,15 +1,12 @@
 import logging
 from typing import Dict, List, Tuple
 
-from givemetheodds.converters import PlanetGraph, MissionDetails
+from givemetheodds.converters import MissionDetails, PlanetGraph
 
 logging.getLogger().addHandler(logging.StreamHandler())
 
-from collections import defaultdict
 
-
-class PredictionService(object):
-
+class PredictionService:
     def __init__(self, mission_details: MissionDetails):
         self.autonomy: int = mission_details.autonomy
         self.departure: str = mission_details.departure
@@ -27,20 +24,29 @@ class PredictionService(object):
         without being captured by bounty hunters
         """
 
-        self._get_all_paths_between_two_nodes(countdown=countdown,
-                                              destination_node=self.destination,
-                                              start_node=self.departure)
+        self._get_all_paths_between_two_nodes(
+            countdown=countdown,
+            destination_node=self.destination,
+            start_node=self.departure,
+        )
         if not self.paths:
             return 0
 
-        detailed_travel_plans = [self._get_detailed_travel_plan(plan) for plan in self.paths]
-        optimized_paths = [self._optimize_path(plan, hunter_schedule, countdown=countdown) for plan in detailed_travel_plans]
+        detailed_travel_plans = [
+            self._get_detailed_travel_plan(plan) for plan in self.paths
+        ]
+        optimized_paths = [
+            self._optimize_path(plan, hunter_schedule, countdown=countdown)
+            for plan in detailed_travel_plans
+        ]
 
-        capture_attempt_count: int = PredictionService._get_lowest_capture_count(hunter_schedule=hunter_schedule,
-                                                                                 optimized_paths=optimized_paths)
+        capture_attempt_count: int = PredictionService._get_lowest_capture_count(
+            hunter_schedule=hunter_schedule, optimized_paths=optimized_paths
+        )
 
         probability_of_capture: float = PredictionService._get_probability_of_capture(
-            capture_attempt_count=capture_attempt_count)
+            capture_attempt_count=capture_attempt_count
+        )
         return PredictionService._convert_capture_probability_to_success_rate(
             probability_of_capture=probability_of_capture
         )
@@ -95,7 +101,9 @@ class PredictionService(object):
         else:
             for neighbour_node in self.planet_graph.routes[current_node]:
                 if not visited[neighbour_node]:
-                    self._get_all_paths(neighbour_node, destination_node, visited, path, countdown)
+                    self._get_all_paths(
+                        neighbour_node, destination_node, visited, path, countdown
+                    )
         path.pop()
         visited[current_node] = False
 
@@ -151,11 +159,13 @@ class PredictionService(object):
         capture_attempts: int = 0
         for stop in route:
             if stop in hunter_schedule:
-                capture_attempts +=1
+                capture_attempts += 1
         return capture_attempts
 
     @staticmethod
-    def _convert_capture_probability_to_success_rate(probability_of_capture: float) -> int:
+    def _convert_capture_probability_to_success_rate(
+        probability_of_capture: float,
+    ) -> int:
         """
         Converts the probability of capture to the success rate.
         :param probability_of_capture: the probability of capture (ranging from 0.0 to 1.0)
@@ -184,7 +194,7 @@ class PredictionService(object):
     @staticmethod
     def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):
         for i in range(0, delay_budget):
-            if (stop[0], stop[1]+1) not in hunter_schedule:
+            if (stop[0], stop[1] + 1) not in hunter_schedule:
                 return True
         return False
 
@@ -200,17 +210,21 @@ class PredictionService(object):
             return path
 
         for stop in path:
-            if new_path and \
-                    stop in hunter_schedule and \
-                    PredictionService._can_avoid_bounty_hunters_set(stop, delay_budget, hunter_schedule) and \
-                    delay_budget != 0:
+            if (
+                new_path
+                and stop in hunter_schedule
+                and PredictionService._can_avoid_bounty_hunters_set(
+                    stop, delay_budget, hunter_schedule
+                )
+                and delay_budget != 0
+            ):
 
                 last_stop = new_path[-1]
                 new_stop = (last_stop[0], last_stop[1] + waiting_day)
                 new_path.append(new_stop)
                 delay_budget -= waiting_day
                 delay += waiting_day
-                stop = (stop[0], stop[1]+delay)
+                stop = (stop[0], stop[1] + delay)
 
                 while stop in hunter_schedule and delay_budget != 0:
                     last_stop = new_path[-1]
@@ -222,5 +236,5 @@ class PredictionService(object):
                 new_path.append((stop[0], stop[1]))
 
             else:
-                new_path.append((stop[0], stop[1]+delay))
+                new_path.append((stop[0], stop[1] + delay))
         return new_path

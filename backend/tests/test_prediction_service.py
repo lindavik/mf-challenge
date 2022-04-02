@@ -1,9 +1,8 @@
-from typing import List, Tuple
+from typing import List
 
 import pytest
 
-from givemetheodds.converters import MissionDetails
-from givemetheodds.converters import PlanetGraph
+from givemetheodds.converters import MissionDetails, PlanetGraph
 from givemetheodds.prediction_service import PredictionService
 
 TATOOINE = "Tatooine"
@@ -12,7 +11,7 @@ HOTH = "Hoth"
 ENDOR = "Endor"
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def planet_graph(request):
     planet_graph = PlanetGraph()
     planet_graph.add_route(TATOOINE, DAGOBAH, 6)
@@ -25,23 +24,26 @@ def planet_graph(request):
 
 @pytest.fixture
 def prediction_service(planet_graph):
-    mission_details: MissionDetails = MissionDetails(autonomy=6,
-                                                     arrival=ENDOR,
-                                                     departure=TATOOINE,
-                                                     routes=planet_graph)
+    mission_details: MissionDetails = MissionDetails(
+        autonomy=6, arrival=ENDOR, departure=TATOOINE, routes=planet_graph
+    )
     return PredictionService(mission_details=mission_details)
 
 
 @pytest.mark.parametrize(
     "input_countdown, expected",
     [
-        (9, [['Tatooine', 'Dagobah', 'Hoth', 'Endor'], ['Tatooine', 'Hoth', 'Endor']]),
-        (8, [['Tatooine', 'Hoth', 'Endor']]),
-        (7, [])
+        (9, [["Tatooine", "Dagobah", "Hoth", "Endor"], ["Tatooine", "Hoth", "Endor"]]),
+        (8, [["Tatooine", "Hoth", "Endor"]]),
+        (7, []),
     ],
 )
-def test__get_all_paths_between_two_nodes(prediction_service, input_countdown, expected):
-    prediction_service._get_all_paths_between_two_nodes(TATOOINE, ENDOR, input_countdown)
+def test__get_all_paths_between_two_nodes(
+    prediction_service, input_countdown, expected
+):
+    prediction_service._get_all_paths_between_two_nodes(
+        TATOOINE, ENDOR, input_countdown
+    )
 
     assert prediction_service.paths == expected
 
@@ -55,20 +57,30 @@ def planet_graph_minimal():
 
 def test__adjust_for_fuelling_needs_multiple():
     autonomy: int = 6
-    route: List = [(TATOOINE, 0), ('Random', 3), (HOTH, 7), (ENDOR, 12)]
-    expected: List = [(TATOOINE, 0), ('Random', 3), ('Random', 4), (HOTH, 8), (HOTH, 9), (ENDOR, 14)]
+    route: List = [(TATOOINE, 0), ("Random", 3), (HOTH, 7), (ENDOR, 12)]
+    expected: List = [
+        (TATOOINE, 0),
+        ("Random", 3),
+        ("Random", 4),
+        (HOTH, 8),
+        (HOTH, 9),
+        (ENDOR, 14),
+    ]
 
-    actual = PredictionService._adjust_for_fuelling_needs(route=route, autonomy=autonomy)
+    actual = PredictionService._adjust_for_fuelling_needs(
+        route=route, autonomy=autonomy
+    )
 
     assert actual == expected
 
 
 @pytest.mark.parametrize(
     "input_countdown, expected",
-    [(10, 100), (9, 90), (8, 81),(7, 0), (6, 0)],
+    [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0)],
 )
-def test_get_probability_of_success(prediction_service, input_countdown, expected, hunter_schedule_set
-                                    ):
+def test_get_probability_of_success(
+    prediction_service, input_countdown, expected, hunter_schedule_set
+):
     actual = prediction_service.get_probability_of_success(
         countdown=input_countdown,
         hunter_schedule=hunter_schedule_set,
@@ -121,7 +133,7 @@ def test__get_capture_attempt_count_without_capture():
 
 
 def test__get_travel_in_days(prediction_service):
-    route = ['Tatooine', 'Hoth', 'Endor']
+    route = ["Tatooine", "Hoth", "Endor"]
     expected = 8
 
     actual = prediction_service._get_travel_in_days(route)
@@ -132,10 +144,20 @@ def test__get_travel_in_days(prediction_service):
 @pytest.mark.parametrize(
     "input_path, expected",
     [
-        (['Tatooine', 'Dagobah', 'Hoth', 'Endor'],
-         [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]),
-        (['Tatooine', 'Hoth', 'Endor'],
-         [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)])
+        (
+            ["Tatooine", "Dagobah", "Hoth", "Endor"],
+            [
+                ("Tatooine", 0),
+                ("Dagobah", 6),
+                ("Dagobah", 7),
+                ("Hoth", 8),
+                ("Endor", 9),
+            ],
+        ),
+        (
+            ["Tatooine", "Hoth", "Endor"],
+            [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)],
+        ),
     ],
 )
 def test__get_detailed_travel_plan(input_path, expected, prediction_service):
@@ -154,9 +176,9 @@ def test__can_avoid_bounty_hunters_set1(hunter_schedule_set):
     stop = (TATOOINE, 0)
     expected = True
 
-    actual = PredictionService._can_avoid_bounty_hunters_set(stop,
-                                                             delay_budget=delay_budget,
-                                                             hunter_schedule=hunter_schedule_set)
+    actual = PredictionService._can_avoid_bounty_hunters_set(
+        stop, delay_budget=delay_budget, hunter_schedule=hunter_schedule_set
+    )
 
     assert actual == expected
 
@@ -166,45 +188,60 @@ def test__can_avoid_bounty_hunters_set2(hunter_schedule_set):
     stop = (HOTH, 6)
     expected = False
 
-    actual = PredictionService._can_avoid_bounty_hunters_set(stop,
-                                                             delay_budget=delay_budget,
-                                                             hunter_schedule=hunter_schedule_set)
+    actual = PredictionService._can_avoid_bounty_hunters_set(
+        stop, delay_budget=delay_budget, hunter_schedule=hunter_schedule_set
+    )
 
     assert actual == expected
 
 
 def test__optimize_path_v1(hunter_schedule_set):
     countdown: int = 10
-    path = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
-    expected = [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+    path = [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)]
+    expected = [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)]
 
-    actual = PredictionService._optimize_path(path,
-                                              hunter_schedule=hunter_schedule_set,
-                                              countdown=countdown)
+    actual = PredictionService._optimize_path(
+        path, hunter_schedule=hunter_schedule_set, countdown=countdown
+    )
 
     assert actual == expected
 
 
 def test__optimize_path_v2(hunter_schedule_set):
     countdown: int = 11
-    path = [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Hoth', 8), ('Endor', 9)]
-    expected = [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Dagobah', 8), ('Hoth', 9), ('Endor', 10)]
+    path = [("Tatooine", 0), ("Dagobah", 6), ("Dagobah", 7), ("Hoth", 8), ("Endor", 9)]
+    expected = [
+        ("Tatooine", 0),
+        ("Dagobah", 6),
+        ("Dagobah", 7),
+        ("Dagobah", 8),
+        ("Hoth", 9),
+        ("Endor", 10),
+    ]
 
-    actual = PredictionService._optimize_path(path,
-                                              hunter_schedule=hunter_schedule_set,
-                                              countdown=countdown)
+    actual = PredictionService._optimize_path(
+        path, hunter_schedule=hunter_schedule_set, countdown=countdown
+    )
 
     assert actual == expected
 
 
 def test__get_lowest_capture_count(hunter_schedule_set):
     optimized_paths: List = [
-        [('Tatooine', 0), ('Dagobah', 6), ('Dagobah', 7), ('Dagobah', 8), ('Hoth', 9), ('Endor', 10)],
-        [('Tatooine', 0), ('Hoth', 6), ('Hoth', 7), ('Endor', 8)]
+        [
+            ("Tatooine", 0),
+            ("Dagobah", 6),
+            ("Dagobah", 7),
+            ("Dagobah", 8),
+            ("Hoth", 9),
+            ("Endor", 10),
+        ],
+        [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)],
     ]
     expected = 0
 
-    actual = PredictionService._get_lowest_capture_count(hunter_schedule=hunter_schedule_set,
-                                                         optimized_paths=optimized_paths)
+    actual = PredictionService._get_lowest_capture_count(
+        hunter_schedule=hunter_schedule_set, optimized_paths=optimized_paths
+    )
 
     assert actual == expected

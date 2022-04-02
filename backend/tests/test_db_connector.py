@@ -3,7 +3,7 @@ from sqlite3 import Connection
 
 import pytest
 
-from givemetheodds.db_connector import DBConnector, DatabaseFileNotFound
+from givemetheodds.db_connector import DatabaseFileNotFound, DBConnector
 
 
 @pytest.fixture
@@ -30,4 +30,3 @@ def test_get_iterator(current_file_path):
     actual = DBConnector.get_iterator(db_file=db_file, query=query)
 
     assert actual is not None
-

@@ -7,7 +7,6 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 
 class FileReader:
-
     @staticmethod
     def read_json(path_to_file: str) -> Dict:
         """
@@ -24,7 +23,9 @@ class FileReader:
                 logging.error(f"Error occurred while loading {path_to_file}.")
                 raise InputFileReadError()
         else:
-            logging.error(f"Incorrect file extension. Expected .json, got {file_extension}")
+            logging.error(
+                f"Incorrect file extension. Expected .json, got {file_extension}"
+            )
             raise InputFileReadError()
 
 
@@ -35,7 +36,10 @@ class InputFileReadError(Exception):
         message -- explanation of the error
     """
 
-    def __init__(self, message="Input files do not match expected format. "
-                               "Please see sample input files for more details."):
+    def __init__(
+        self,
+        message="Input files do not match expected format. "
+        "Please see sample input files for more details.",
+    ):
         self.message = message
         super().__init__(self.message)

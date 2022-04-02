@@ -1,5 +1,5 @@
-import sqlite3
 import logging
+import sqlite3
 from os.path import exists
 from sqlite3 import Connection, Cursor
 from typing import Iterator
