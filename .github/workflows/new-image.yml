@@ -2,7 +2,7 @@ name: Main Image Creation Flow
 
 on:
   push:
-    branches: [ main, 012_build_tag_push_images_to_dockerhub ]
+#    branches: [ main, 012_build_tag_push_images_to_dockerhub ]
     tags:
       - v*.*.*
   pull_request:
@@ -17,7 +17,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Docker meta backend
+    - name: Docker meta backend`
       id: meta
       uses: docker/metadata-action@v3
       with:
