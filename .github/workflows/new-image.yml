@@ -25,12 +25,12 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          file: { context }/backend/Dockerfile
+#          file: { context }/backend/Dockerfile
           tags: lviksne2/mf-backend:latest
 
       - name: Build and push frontend
         uses: docker/build-push-action@v2
         with:
           push: true
-          file: { context }/frontend/Dockerfile
+#          file: { context }/frontend/Dockerfile
           tags: lviksne2/mf-frontend:latest
