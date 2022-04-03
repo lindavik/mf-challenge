@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - v*.*
-    branches: [ main, 012_build_tag_push_images_to_dockerhub ]
+    branches: [ main ]
 
 jobs:
   build-backend:
