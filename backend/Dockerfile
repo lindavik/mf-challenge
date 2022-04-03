@@ -1,4 +1,3 @@
-#todo update base image to alpine or slim, change to multi stage build
 FROM python:3.8
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
@@ -9,8 +8,7 @@ RUN pip install poetry
 
 COPY . .
 
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-interaction
+RUN poetry config virtualenvs.create false && poetry install --no-interaction
 
 EXPOSE 8000
 
