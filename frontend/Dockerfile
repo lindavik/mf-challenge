@@ -1,4 +1,3 @@
-#todo update base image to alpine or slim
 FROM python:3.8
 
 WORKDIR /app

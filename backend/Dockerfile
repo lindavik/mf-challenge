@@ -1,4 +1,3 @@
-#todo update base image to alpine or slim, change to multi stage build
 FROM python:3.8
 
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
