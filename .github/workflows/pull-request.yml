@@ -3,7 +3,7 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+#      - develop #todo remove added temporarily
 
 jobs:
   backend-pr:
