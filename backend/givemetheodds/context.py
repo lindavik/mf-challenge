@@ -1,12 +1,16 @@
 import os
 from typing import Dict
 
+from givemetheodds.converters import (
+    InterceptedData,
+    InterceptedDataConverter,
+    MissionConverter,
+    MissionDetails,
+)
 from givemetheodds.file_reader import FileReader
-from givemetheodds.converters import MissionConverter, MissionDetails, InterceptedData, InterceptedDataConverter
 
 
 class ContextLoader:
-
     @staticmethod
     def load_mission_details(file_path: str) -> MissionDetails:
         """
@@ -25,9 +29,10 @@ class ContextLoader:
         :param file_path: path to the input file containing the intercepted data
         :return: intercepted data
         """
-        # file_path = os.path.abspath(file_path)
         raw_intercepted_data = FileReader.read_json(file_path)
-        return InterceptedDataConverter.map_to_intercepted_data(raw_data=raw_intercepted_data)
+        return InterceptedDataConverter.map_to_intercepted_data(
+            raw_data=raw_intercepted_data
+        )
 
     @staticmethod
     def load_intercepted_data(raw_intercepted_data: Dict) -> InterceptedData:
@@ -36,4 +41,6 @@ class ContextLoader:
         :param raw_intercepted_data: json compatible intercepted data
         :return: intercepted data
         """
-        return InterceptedDataConverter.map_to_intercepted_data(raw_data=raw_intercepted_data)
+        return InterceptedDataConverter.map_to_intercepted_data(
+            raw_data=raw_intercepted_data
+        )

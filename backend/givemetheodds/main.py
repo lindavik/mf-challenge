@@ -6,10 +6,9 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
+from givemetheodds.mission_service import MissionService
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
-
-from givemetheodds.mission_service import MissionService
 
 logging.getLogger().addHandler(logging.StreamHandler())
 
@@ -18,16 +17,15 @@ Give Me The Odds API lets you get the odds of successfully reaching the destinat
 You can read more about the challenge [here](https://github.com/dataiku/millenium-falcon-challenge).
 """
 
-app = FastAPI(
-    title="Give Me The Odds",
-    description=description
-)
+app = FastAPI(title="Give Me The Odds", description=description)
 
 
 @app.on_event("startup")
 def get_mission_service():
     file_path: Path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    mission_details_file_path: str = os.path.join(file_path, "inputs/millennium-falcon.json")
+    mission_details_file_path: str = os.path.join(
+        file_path, "inputs/millennium-falcon.json"
+    )
     return MissionService(mission_details_file_path=Path(mission_details_file_path))
 
 
@@ -43,7 +41,7 @@ class InterceptedDataModel(BaseModel):
     countdown: int = 6
     bounty_hunters: List[dict] = [
         {"planet": "Tatooine", "day": 4},
-        {"planet": "Dagobah", "day": 5}
+        {"planet": "Dagobah", "day": 5},
     ]
 
 

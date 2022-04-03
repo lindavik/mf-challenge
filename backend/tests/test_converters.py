@@ -2,15 +2,15 @@ import os
 from typing import Dict
 
 import pytest
+from givemetheodds.converters import (
+    InterceptedData,
+    InterceptedDataConverter,
+    MissionConverter,
+    MissionDetails,
+    PlanetGraph,
+)
 
-from givemetheodds.converters import MissionDetails, MissionConverter, InterceptedData, InterceptedDataConverter, \
-    PlanetGraph
-
-
-TATOOINE = "Tatooine"
-DAGOBAH = "Dagobah"
-HOTH = "Hoth"
-ENDOR = "Endor"
+from tests.utils import DAGOBAH, ENDOR, HOTH, TATOOINE
 
 
 @pytest.fixture
@@ -34,15 +34,16 @@ def test_get_mission_details(current_file_path, planet_graph):
         "autonomy": 6,
         "departure": "Tatooine",
         "arrival": "Endor",
-        "routes_db": "universe.db"
+        "routes_db": "universe.db",
     }
     directory: str = os.path.join(current_file_path, "sample_inputs")
-    expected: MissionDetails = MissionDetails(autonomy=6,
-                                              departure="Tatooine",
-                                              arrival="Endor",
-                                              routes=planet_graph)
+    expected: MissionDetails = MissionDetails(
+        autonomy=6, departure=TATOOINE, arrival=ENDOR, routes=planet_graph
+    )
 
-    actual: MissionDetails = MissionConverter.map_to_mission_details(details, directory=directory)
+    actual: MissionDetails = MissionConverter.map_to_mission_details(
+        details, directory=directory
+    )
 
     assert actual == expected
 
@@ -53,7 +54,7 @@ def test_get_mission_details_bad_field_format(current_file_path):
         "autonomy": "6",
         "departure": "Tatooine",
         "arrival": "Endor",
-        "routes_db": "universe.db"
+        "routes_db": "universe.db",
     }
     with pytest.raises(Exception):
         MissionConverter.map_to_mission_details(details, directory)
@@ -66,13 +67,12 @@ def test_get_mission_details_with_unknown_fields(current_file_path, planet_graph
         "departure": "Tatooine",
         "arrival": "Endor",
         "routes_db": "universe.db",
-        "should_not_be_here": "nope"
+        "should_not_be_here": "nope",
     }
 
-    expected: MissionDetails = MissionDetails(autonomy=6,
-                                              departure="Tatooine",
-                                              arrival="Endor",
-                                              routes=planet_graph)
+    expected: MissionDetails = MissionDetails(
+        autonomy=6, departure=TATOOINE, arrival=ENDOR, routes=planet_graph
+    )
 
     actual: MissionDetails = MissionConverter.map_to_mission_details(details, directory)
 
@@ -82,11 +82,7 @@ def test_get_mission_details_with_unknown_fields(current_file_path, planet_graph
 def test_get_mission_details_missing_required_details(current_file_path):
     directory: str = os.path.join(current_file_path, "sample_inputs")
     with pytest.raises(Exception):
-        details = {
-            "autonomy": 6,
-            "arrival": "Endor",
-            "routes_db": "universe.db"
-        }
+        details = {"autonomy": 6, "arrival": "Endor", "routes_db": "universe.db"}
         MissionConverter.map_to_mission_details(details, directory)
 
 
@@ -97,7 +93,7 @@ def test_get_mission_details_invalid_autonomy(current_file_path):
             "autonomy": -6,
             "arrival": "Endor",
             "departure": "Tatooine",
-            "routes_db": "universe.db"
+            "routes_db": "universe.db",
         }
         MissionConverter.map_to_mission_details(details, directory)
 
@@ -125,38 +121,20 @@ def test_planet_graph(planet_graph):
 
 
 def test_map_to_intercepted_data():
-    bounty_hunter_schedule = {
-        HOTH: {6, 7, 8},
-        ENDOR: {9}
-    }
+    bounty_hunter_schedule = [(HOTH, 6), (HOTH, 7), (HOTH, 8), (ENDOR, 9)]
     raw_data = {
         "countdown": 7,
         "bounty_hunters": [
             {"planet": "Hoth", "day": 6},
             {"planet": "Hoth", "day": 7},
             {"planet": "Hoth", "day": 8},
-            {"planet": "Endor", "day": 9}
-        ]
+            {"planet": "Endor", "day": 9},
+        ],
     }
-    expected = InterceptedData(countdown=7, bounty_hunter_schedule=bounty_hunter_schedule)
+    expected = InterceptedData(
+        countdown=7, bounty_hunter_schedule=bounty_hunter_schedule
+    )
 
     actual = InterceptedDataConverter.map_to_intercepted_data(raw_data=raw_data)
-
-    assert actual == expected
-
-
-def test_process_schedule():
-    raw_schedule = [
-        {"planet": "Hoth", "day": 6},
-        {"planet": "Hoth", "day": 7},
-        {"planet": "Hoth", "day": 8},
-        {"planet": "Endor", "day": 9}
-    ]
-    expected = {
-        HOTH: {6, 7, 8},
-        ENDOR: {9}
-    }
-
-    actual = InterceptedDataConverter._process_schedule(raw_schedule=raw_schedule)
 
     assert actual == expected

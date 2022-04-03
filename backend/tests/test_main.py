@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-
 from givemetheodds.main import app
 
 client = TestClient(app)
@@ -30,8 +29,8 @@ def test_mission_endpoint():
         "countdown": 6,
         "bounty_hunters": [
             {"planet": "Tatooine", "day": 4},
-            {"planet": "Dagobah", "day": 5}
-        ]
+            {"planet": "Dagobah", "day": 5},
+        ],
     }
     response = client.post("/v1/mission-success/", json=payload)
     assert response.status_code == 200

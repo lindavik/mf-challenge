@@ -1,14 +1,11 @@
 import os
+from typing import List
 
 import pytest
-
 from givemetheodds.context import ContextLoader
-from givemetheodds.converters import MissionDetails, InterceptedData, PlanetGraph
+from givemetheodds.converters import InterceptedData, MissionDetails, PlanetGraph
 
-TATOOINE = "Tatooine"
-DAGOBAH = "Dagobah"
-HOTH = "Hoth"
-ENDOR = "Endor"
+from tests.utils import DAGOBAH, ENDOR, HOTH, TATOOINE
 
 
 @pytest.fixture
@@ -28,12 +25,13 @@ def current_file_path():
 
 
 def test_load_mission_details(current_file_path, planet_graph):
-    file_path: str = os.path.join(current_file_path, "sample_inputs/millennium-falcon.json")
+    file_path: str = os.path.join(
+        current_file_path, "sample_inputs/millennium-falcon.json"
+    )
 
-    expected: MissionDetails = MissionDetails(autonomy=6,
-                              departure=TATOOINE,
-                              arrival=ENDOR,
-                              routes=planet_graph)
+    expected: MissionDetails = MissionDetails(
+        autonomy=6, departure=TATOOINE, arrival=ENDOR, routes=planet_graph
+    )
 
     actual: MissionDetails = ContextLoader.load_mission_details(file_path=file_path)
 
@@ -42,13 +40,12 @@ def test_load_mission_details(current_file_path, planet_graph):
 
 def test_load_intercepted_data(current_file_path, planet_graph):
     file_path: str = os.path.join(current_file_path, "sample_inputs/empire.json")
-    expected_schedule = {
-        TATOOINE: {4},
-        DAGOBAH: {5}
-    }
-    expected = InterceptedData(countdown=6,
-                               bounty_hunter_schedule=expected_schedule)
+    expected_schedule: List = [(TATOOINE, 4), (DAGOBAH, 5)]
 
-    actual: InterceptedData = ContextLoader.load_intercepted_data_from_file(file_path=file_path)
+    expected = InterceptedData(countdown=6, bounty_hunter_schedule=expected_schedule)
+
+    actual: InterceptedData = ContextLoader.load_intercepted_data_from_file(
+        file_path=file_path
+    )
 
     assert actual == expected
