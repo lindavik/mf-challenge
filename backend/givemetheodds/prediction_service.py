@@ -20,7 +20,7 @@ class PredictionService:
         being captured by bounty hunters. Returns a number ranging from 0 to 100.
         :param countdown: positive integer indicating the number of days before the Death Star annihilates Endor
         :param hunter_schedule: list of all locations where Bounty Hunter are scheduled to be present
-        :return: a non-negative integer (0-100) indicating the probability (%) of successfully reaching the destination planet
+        :return: a non-negative integer (0-100) indicating the probability (%) of successfully reaching the destination
         without being captured by bounty hunters
         """
         self._generate_all_paths_between_two_planets(
@@ -158,7 +158,7 @@ class PredictionService:
         :param optimized_paths: the list of paths
         :return: the lowest number of capture attempts across the paths
         """
-        lowest_capture_count: int = None
+        lowest_capture_count = None
         for path in optimized_paths:
             capture_attempt_count = PredictionService._get_capture_attempt_count(
                 route=path, hunter_schedule=hunter_schedule
@@ -238,7 +238,7 @@ class PredictionService:
             return result
 
         for i in range(capture_attempt_count):
-            result += (9 ** (i)) / (10 ** (i + 1))
+            result += (9**i) / (10 ** (i + 1))
 
         return result
 
@@ -249,7 +249,7 @@ class PredictionService:
         """
         Checks if it is possible to avoid bounty hunters given their schedule and the time limit.
         :param stop: the current stop/planet
-        :param delay_budget: the delay budget, i.e. difference between earliest arrival to destination and the time limit
+        :param delay_budget: the delay budget, i.e. difference between earliest arrival to destination and time limit
         :param hunter_schedule: the bounty hunter schedule
         :return: if it is possible to avoid bounty hunters
         """

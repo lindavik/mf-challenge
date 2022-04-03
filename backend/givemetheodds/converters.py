@@ -11,7 +11,16 @@ class PlanetGraph:
         self.routes = defaultdict(list)
         self.distances = {}
 
-    def add_route(self, departure_planet: str, destination_planet: str, distance: int):
+    def add_route(
+        self, departure_planet: str, destination_planet: str, distance: int
+    ) -> None:
+        """
+        Adds a route to the planet graph/plan.
+        :param departure_planet: the departure planet
+        :param destination_planet: the destination planet
+        :param distance: the distance in days
+        :return: None
+        """
         self.planets.add(departure_planet)
         self.planets.add(destination_planet)
         self.routes[departure_planet].append(destination_planet)
@@ -53,7 +62,13 @@ class MissionDetails:
 
 class FieldConverter:
     @staticmethod
-    def _get_field(details: Dict, field_name: str):
+    def _get_required_field(details: Dict, field_name: str):
+        """
+        Checks if a required field is present and returns its value.
+        :param details: the mission details
+        :param field_name: the field name
+        :return: the field value
+        """
         field = details.get(field_name)
         if not field:
             logging.exception(f"{field} Field must be provided")
@@ -61,7 +76,13 @@ class FieldConverter:
         return field
 
     @staticmethod
-    def _validate_positive_integer(field, field_name: str):
+    def _validate_positive_integer(field, field_name: str) -> None:
+        """
+        Validates that the field is a positive integer.
+        :param field: the field value
+        :param field_name: the field name
+        :return: None
+        """
         if not isinstance(field, int):
             logging.exception(
                 f"{field_name} must be an int; however, was: {type(field)}"
@@ -97,17 +118,27 @@ class FieldValidationException(Exception):
 class MissionConverter(FieldConverter):
     @staticmethod
     def map_to_mission_details(details: Dict, directory: str) -> MissionDetails:
+        """
+        Map raw mission details to MissionDetails object.
+        :param details: the mission details
+        :param directory: the directory where the mission detail file is stored
+        :return: MissionDetails object containing all the mission details
+        """
         autonomy_field_name = "autonomy"
-        autonomy = MissionConverter._get_field(
+        autonomy = MissionConverter._get_required_field(
             details=details, field_name=autonomy_field_name
         )
         MissionConverter._validate_positive_integer(
             field=autonomy, field_name=autonomy_field_name
         )
-        departure = MissionConverter._get_field(details=details, field_name="departure")
-        arrival = MissionConverter._get_field(details=details, field_name="arrival")
+        departure = MissionConverter._get_required_field(
+            details=details, field_name="departure"
+        )
+        arrival = MissionConverter._get_required_field(
+            details=details, field_name="arrival"
+        )
 
-        planet_db_file = MissionConverter._get_field(
+        planet_db_file = MissionConverter._get_required_field(
             details=details, field_name="routes_db"
         )
         planet_db_file = f"{directory}/{planet_db_file}"
@@ -119,7 +150,12 @@ class MissionConverter(FieldConverter):
 
     @staticmethod
     def _load_routes(db_file: str) -> PlanetGraph:
-        routes = MissionConverter.get_routes(db_file)
+        """
+        Creates a planet graph/plan based on the route data in the database file.
+        :param db_file: the database file
+        :return: the planet graph
+        """
+        routes = MissionConverter._get_routes(db_file)
         planet_graph = PlanetGraph()
         for route in routes:
             planet_graph.add_route(
@@ -130,7 +166,12 @@ class MissionConverter(FieldConverter):
         return planet_graph
 
     @staticmethod
-    def get_routes(db_file: str):
+    def _get_routes(db_file: str):
+        """
+        Gets the different routes between the planets from the provided database file.
+        :param db_file: the database file
+        :return: an iterator of all the routes
+        """
         route_query: str = "SELECT origin, destination, travel_time FROM routes"
         return DBConnector.get_iterator(db_file=db_file, query=route_query)
 
@@ -153,24 +194,25 @@ class InterceptedData:
 
 class InterceptedDataConverter(FieldConverter):
     @staticmethod
-    def map_to_intercepted_data(raw_data):
+    def map_to_intercepted_data(raw_data) -> InterceptedData:
+        """
+        Maps raw rebel intercepted data to an InterceptedData object.
+        :param raw_data: the raw data
+        :return: an InterceptedData object containing all the rebel intercepted data
+        """
         countdown_field_name = "countdown"
-        countdown: int = InterceptedDataConverter._get_field(
+        countdown: int = InterceptedDataConverter._get_required_field(
             details=raw_data, field_name=countdown_field_name
         )
         InterceptedDataConverter._validate_positive_integer(
             field=countdown, field_name=countdown_field_name
         )
-        bounty_hunter_schedule_raw: List = InterceptedDataConverter._get_field(
+        raw_schedule: List = InterceptedDataConverter._get_required_field(
             details=raw_data, field_name="bounty_hunters"
         )
-        bounty_hunter_schedule: List = InterceptedDataConverter._process_schedule(
-            raw_schedule=bounty_hunter_schedule_raw
-        )
+        bounty_hunter_schedule: List = [
+            (item["planet"], item["day"]) for item in raw_schedule
+        ]
         return InterceptedData(
             countdown=countdown, bounty_hunter_schedule=bounty_hunter_schedule
         )
-
-    @staticmethod
-    def _process_schedule(raw_schedule: List) -> List:
-        return [(item["planet"], item["day"]) for item in raw_schedule]

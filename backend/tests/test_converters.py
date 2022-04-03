@@ -141,17 +141,3 @@ def test_map_to_intercepted_data():
     actual = InterceptedDataConverter.map_to_intercepted_data(raw_data=raw_data)
 
     assert actual == expected
-
-
-def test_process_schedule():
-    raw_schedule = [
-        {"planet": "Hoth", "day": 6},
-        {"planet": "Hoth", "day": 7},
-        {"planet": "Hoth", "day": 8},
-        {"planet": "Endor", "day": 9},
-    ]
-    expected = [(HOTH, 6), (HOTH, 7), (HOTH, 8), (ENDOR, 9)]
-
-    actual = InterceptedDataConverter._process_schedule(raw_schedule=raw_schedule)
-
-    assert actual == expected
