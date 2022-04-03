@@ -57,7 +57,7 @@ jobs:
 
       - name: Run Snyk to check for vulnerabilities
         continue-on-error: true
-        run: snyk test
+        run: snyk test --skip-unresolved=true
         working-directory: ./backend
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
 
       - name: Run Snyk to check for vulnerabilities
         continue-on-error: true
-        run: snyk test
+        run: snyk test --skip-unresolved=true
         working-directory: ./frontend
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
