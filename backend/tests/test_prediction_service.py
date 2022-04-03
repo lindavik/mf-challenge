@@ -26,6 +26,11 @@ def prediction_service(planet_graph):
     return PredictionService(mission_details=mission_details)
 
 
+@pytest.fixture
+def hunter_schedule():
+    return [(HOTH, 6), (HOTH, 7), (HOTH, 8)]
+
+
 @pytest.mark.parametrize(
     "input_countdown, expected",
     [
@@ -160,11 +165,6 @@ def test__get_detailed_travel_plan(input_path, expected, prediction_service):
     actual = prediction_service._get_detailed_travel_plan(input_path)
 
     assert actual == expected
-
-
-@pytest.fixture
-def hunter_schedule():
-    return {(HOTH, 6), (HOTH, 7), (HOTH, 8)}
 
 
 def test__can_avoid_bounty_hunters_set1(hunter_schedule):
