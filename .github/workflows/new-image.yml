@@ -2,12 +2,13 @@ name: Main Image Creation Flow
 
 on:
   push:
+    tags: [v*.*.*, v*.*]
 #    branches: [ main, 012_build_tag_push_images_to_dockerhub ]
-    tags:
-      - v*.*.*
-  pull_request:
-    branches:
-      - main
+#    tags:
+#      - v*.*.*
+#  pull_request:
+#    branches:
+#      - main
 
 
 jobs:
