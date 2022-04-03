@@ -1,7 +1,7 @@
 {
-  "countdown": 8,
+  "countdown": 6,
   "bounty_hunters": [
-    {"planet": "Tatooine", "day":  },
+    {"planet": "Tatooine", "day": 4 },
     {"planet": "Dagobah", "day": 5 }
   ]
 }
