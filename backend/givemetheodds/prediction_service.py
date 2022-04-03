@@ -60,6 +60,7 @@ class PredictionService:
         :param time_limit: the time limit in days to reach the destination planet
         :return: None
         """
+        self.paths = []
         visited = {planet: False for planet in self.planet_graph.planets}
         path = []
         self._generate_all_paths(
