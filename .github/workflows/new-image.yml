@@ -4,10 +4,10 @@ on:
   push:
     branches: [ main, 012_build_tag_push_images_to_dockerhub ]
     tags:
-      - 'v*.*.*'
+      - v*.*.*
   pull_request:
     branches:
-      - 'main'
+      - main
 
 
 jobs:
