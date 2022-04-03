@@ -69,8 +69,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Enforce Dockerfile best practices
+      - name: Check Dockerfile best practices - Backend
         uses: hadolint/hadolint-action@v1.6.0
         with:
-          dockerfile: Dockerfile
+          dockerfile: backend/Dockerfile
+          failure-threshold: error
+
+      - name: Check Dockerfile best practices - Frontend
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: frontend/Dockerfile
           failure-threshold: error
