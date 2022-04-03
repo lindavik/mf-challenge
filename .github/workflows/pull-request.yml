@@ -32,7 +32,7 @@ jobs:
         run: pytest --cov=. --cov-fail-under=90
         working-directory: backend
 
-  security:
+  backend-security:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -53,6 +53,30 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: backend
 
+      - name: Run Snyk to check for vulnerabilities
+        continue-on-error: true
+        run: snyk test
+        working-directory: ./backend
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  frontend-security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Setup Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.13'
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+
       - name: Install frontend dependencies
         run: pip install -r requirements.txt
         working-directory: frontend
@@ -60,6 +84,7 @@ jobs:
       - name: Run Snyk to check for vulnerabilities
         continue-on-error: true
         run: snyk test
+        working-directory: ./frontend
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
