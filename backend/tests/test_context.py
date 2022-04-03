@@ -5,10 +5,7 @@ import pytest
 from givemetheodds.context import ContextLoader
 from givemetheodds.converters import InterceptedData, MissionDetails, PlanetGraph
 
-TATOOINE = "Tatooine"
-DAGOBAH = "Dagobah"
-HOTH = "Hoth"
-ENDOR = "Endor"
+from tests.utils import DAGOBAH, ENDOR, HOTH, TATOOINE
 
 
 @pytest.fixture

@@ -10,10 +10,7 @@ from givemetheodds.converters import (
     PlanetGraph,
 )
 
-TATOOINE = "Tatooine"
-DAGOBAH = "Dagobah"
-HOTH = "Hoth"
-ENDOR = "Endor"
+from tests.utils import DAGOBAH, ENDOR, HOTH, TATOOINE
 
 
 @pytest.fixture

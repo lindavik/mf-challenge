@@ -4,10 +4,7 @@ import pytest
 from givemetheodds.converters import MissionDetails, PlanetGraph
 from givemetheodds.prediction_service import PredictionService
 
-TATOOINE = "Tatooine"
-DAGOBAH = "Dagobah"
-HOTH = "Hoth"
-ENDOR = "Endor"
+from tests.utils import DAGOBAH, ENDOR, HOTH, TATOOINE
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -32,8 +29,8 @@ def prediction_service(planet_graph):
 @pytest.mark.parametrize(
     "input_countdown, expected",
     [
-        (9, [["Tatooine", "Dagobah", "Hoth", "Endor"], ["Tatooine", "Hoth", "Endor"]]),
-        (8, [["Tatooine", "Hoth", "Endor"]]),
+        (9, [[TATOOINE, DAGOBAH, HOTH, ENDOR], [TATOOINE, HOTH, ENDOR]]),
+        (8, [[TATOOINE, HOTH, ENDOR]]),
         (7, []),
     ],
 )
@@ -78,11 +75,11 @@ def test__adjust_for_fuelling_needs_multiple():
     [(10, 100), (9, 90), (8, 81), (7, 0), (6, 0), (4, 0)],
 )
 def test_get_probability_of_success(
-    prediction_service, input_countdown, expected, hunter_schedule_set
+    prediction_service, input_countdown, expected, hunter_schedule
 ):
     actual = prediction_service.get_probability_of_success(
         countdown=input_countdown,
-        hunter_schedule=hunter_schedule_set,
+        hunter_schedule=hunter_schedule,
     )
 
     assert actual == expected
@@ -108,12 +105,12 @@ def test_convert_capture_probability_to_success_rate(input, expected):
     assert actual == expected
 
 
-def test__get_capture_attempt_count_with_capture(hunter_schedule_set):
+def test__get_capture_attempt_count_with_capture(hunter_schedule):
     shortest_path: List = [(TATOOINE, 0), (HOTH, 7), (ENDOR, 9)]
     expected: int = 1
 
     actual = PredictionService._get_capture_attempt_count(
-        route=shortest_path, hunter_schedule=hunter_schedule_set
+        route=shortest_path, hunter_schedule=hunter_schedule
     )
 
     assert actual == expected
@@ -132,7 +129,7 @@ def test__get_capture_attempt_count_without_capture():
 
 
 def test__get_travel_in_days(prediction_service):
-    route = ["Tatooine", "Hoth", "Endor"]
+    route = [TATOOINE, HOTH, ENDOR]
     expected = 8
 
     actual = prediction_service._get_travel_in_days(route)
@@ -144,18 +141,18 @@ def test__get_travel_in_days(prediction_service):
     "input_path, expected",
     [
         (
-            ["Tatooine", "Dagobah", "Hoth", "Endor"],
+            [TATOOINE, DAGOBAH, HOTH, ENDOR],
             [
-                ("Tatooine", 0),
-                ("Dagobah", 6),
-                ("Dagobah", 7),
-                ("Hoth", 8),
-                ("Endor", 9),
+                (TATOOINE, 0),
+                (DAGOBAH, 6),
+                (DAGOBAH, 7),
+                (HOTH, 8),
+                (ENDOR, 9),
             ],
         ),
         (
-            ["Tatooine", "Hoth", "Endor"],
-            [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)],
+            [TATOOINE, HOTH, ENDOR],
+            [(TATOOINE, 0), (HOTH, 6), (HOTH, 7), (ENDOR, 8)],
         ),
     ],
 )
@@ -166,81 +163,81 @@ def test__get_detailed_travel_plan(input_path, expected, prediction_service):
 
 
 @pytest.fixture
-def hunter_schedule_set():
+def hunter_schedule():
     return {(HOTH, 6), (HOTH, 7), (HOTH, 8)}
 
 
-def test__can_avoid_bounty_hunters_set1(hunter_schedule_set):
+def test__can_avoid_bounty_hunters_set1(hunter_schedule):
     delay_budget = 2
     stop = (TATOOINE, 0)
     expected = True
 
     actual = PredictionService._can_avoid_bounty_hunters_set(
-        stop, delay_budget=delay_budget, hunter_schedule=hunter_schedule_set
+        stop, delay_budget=delay_budget, hunter_schedule=hunter_schedule
     )
 
     assert actual == expected
 
 
-def test__can_avoid_bounty_hunters_set2(hunter_schedule_set):
+def test__can_avoid_bounty_hunters_set2(hunter_schedule):
     delay_budget = 2
     stop = (HOTH, 6)
     expected = False
 
     actual = PredictionService._can_avoid_bounty_hunters_set(
-        stop, delay_budget=delay_budget, hunter_schedule=hunter_schedule_set
+        stop, delay_budget=delay_budget, hunter_schedule=hunter_schedule
     )
 
     assert actual == expected
 
 
-def test__optimize_path_v1(hunter_schedule_set):
+def test__optimize_path_v1(hunter_schedule):
     countdown: int = 10
-    path = [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)]
-    expected = [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)]
+    path = [(TATOOINE, 0), (HOTH, 6), (HOTH, 7), (ENDOR, 8)]
+    expected = [(TATOOINE, 0), (HOTH, 6), (HOTH, 7), (ENDOR, 8)]
 
     actual = PredictionService._optimize_path(
-        path, hunter_schedule=hunter_schedule_set, countdown=countdown
+        path, hunter_schedule=hunter_schedule, countdown=countdown
     )
 
     assert actual == expected
 
 
-def test__optimize_path_v2(hunter_schedule_set):
+def test__optimize_path_v2(hunter_schedule):
     countdown: int = 11
-    path = [("Tatooine", 0), ("Dagobah", 6), ("Dagobah", 7), ("Hoth", 8), ("Endor", 9)]
+    path = [(TATOOINE, 0), (DAGOBAH, 6), (DAGOBAH, 7), (HOTH, 8), (ENDOR, 9)]
     expected = [
-        ("Tatooine", 0),
-        ("Dagobah", 6),
-        ("Dagobah", 7),
-        ("Dagobah", 8),
-        ("Hoth", 9),
-        ("Endor", 10),
+        (TATOOINE, 0),
+        (DAGOBAH, 6),
+        (DAGOBAH, 7),
+        (DAGOBAH, 8),
+        (HOTH, 9),
+        (ENDOR, 10),
     ]
 
     actual = PredictionService._optimize_path(
-        path, hunter_schedule=hunter_schedule_set, countdown=countdown
+        path, hunter_schedule=hunter_schedule, countdown=countdown
     )
 
     assert actual == expected
 
 
-def test__get_lowest_capture_count(hunter_schedule_set):
+def test__get_lowest_capture_count(hunter_schedule):
     optimized_paths: List = [
         [
-            ("Tatooine", 0),
-            ("Dagobah", 6),
-            ("Dagobah", 7),
-            ("Dagobah", 8),
-            ("Hoth", 9),
-            ("Endor", 10),
+            (TATOOINE, 0),
+            (DAGOBAH, 6),
+            (DAGOBAH, 7),
+            (DAGOBAH, 8),
+            (HOTH, 9),
+            (ENDOR, 10),
         ],
-        [("Tatooine", 0), ("Hoth", 6), ("Hoth", 7), ("Endor", 8)],
+        [(TATOOINE, 0), (HOTH, 6), (HOTH, 7), (ENDOR, 8)],
     ]
     expected = 0
 
     actual = PredictionService._get_lowest_capture_count(
-        hunter_schedule=hunter_schedule_set, optimized_paths=optimized_paths
+        hunter_schedule=hunter_schedule, optimized_paths=optimized_paths
     )
 
     assert actual == expected
