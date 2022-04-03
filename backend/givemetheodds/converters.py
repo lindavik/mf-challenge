@@ -78,7 +78,8 @@ class MissingRequiredFieldException(Exception):
     """
     Exception raised when the required field is not found.
     """
-    def __init__(self,  field_name: str):
+
+    def __init__(self, field_name: str):
         self.message = f"{field_name} field must be provided"
         super().__init__(self.message)
 
@@ -87,7 +88,8 @@ class FieldValidationException(Exception):
     """
     Exception raised when the required field does not meet validation requirements.
     """
-    def __init__(self,  message):
+
+    def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 

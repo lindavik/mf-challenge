@@ -2,7 +2,6 @@ import os
 from typing import List
 
 import pytest
-
 from givemetheodds.context import ContextLoader
 from givemetheodds.converters import InterceptedData, MissionDetails, PlanetGraph
 

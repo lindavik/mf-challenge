@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from givemetheodds.mission_service import MissionService
 
 

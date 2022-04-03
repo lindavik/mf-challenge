@@ -6,10 +6,9 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
+from givemetheodds.mission_service import MissionService
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
-
-from givemetheodds.mission_service import MissionService
 
 logging.getLogger().addHandler(logging.StreamHandler())
 

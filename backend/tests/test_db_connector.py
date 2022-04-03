@@ -2,7 +2,6 @@ import os
 from sqlite3 import Connection
 
 import pytest
-
 from givemetheodds.db_connector import DatabaseFileNotFound, DBConnector
 
 

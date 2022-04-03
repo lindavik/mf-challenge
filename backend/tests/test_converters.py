@@ -2,7 +2,6 @@ import os
 from typing import Dict
 
 import pytest
-
 from givemetheodds.converters import (
     InterceptedData,
     InterceptedDataConverter,

@@ -1,7 +1,6 @@
 from typing import List
 
 import pytest
-
 from givemetheodds.converters import MissionDetails, PlanetGraph
 from givemetheodds.prediction_service import PredictionService
 

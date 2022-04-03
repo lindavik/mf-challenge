@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-
 from givemetheodds.main import app
 
 client = TestClient(app)
