@@ -67,7 +67,7 @@ you are running the command.
 
 To get more information on the CLI app simply use the `--help` flag.
 
-## Setup 
+## Setup
 
 ### Poetry
 
@@ -97,6 +97,8 @@ You can get an insight into the way the work was organized in
 this [planning board](https://github.com/lindavik/mf-challenge/projects/1). Things that I would consider doing, if I had
 the luxury of more time:
 
+- Spend more time refactoring the code as there are still some bits which I would like to improve for readability,
+  particularly in the prediction service;
 - Right now the route optimisation to avoid bounty hunters is very simplistic and flawed, if I had more time, I would
   try different more different approaches;
 - I would add unit tests for the Frontend and/or end-to-end testing using Cucumber + Selenium + Gherkin for a more

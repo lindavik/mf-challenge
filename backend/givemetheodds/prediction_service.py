@@ -14,7 +14,7 @@ class PredictionService:
         self.planet_graph: PlanetGraph = mission_details.routes
         self.paths = []
 
-    def get_probability_of_success(self, countdown: int, hunter_schedule: Dict) -> int:
+    def get_probability_of_success(self, countdown: int, hunter_schedule: List) -> int:
         """
         Calculates the probability of successfully reaching the destination planet without
         being captured by bounty hunters. Returns a number ranging from 0 to 100.
@@ -102,6 +102,11 @@ class PredictionService:
         visited[current_planet] = False
 
     def _get_detailed_travel_plan(self, path: List) -> List:
+        """
+        Gets a detailed travel plan of which planet is visited on which day, including refuelling stops.
+        :param path: list of planets visited
+        :return: list of planets including days on which the planet is visited and refuelling days
+        """
         travel_plan = []
         total = 0
         current_fuel: int = self.autonomy
@@ -125,7 +130,12 @@ class PredictionService:
         travel_plan.append((path[-1], total))
         return travel_plan
 
-    def _get_travel_in_days(self, path: List):
+    def _get_travel_in_days(self, path: List) -> int:
+        """
+        Gets the travel time in days for the provided path
+        :param path: list of planets in current path
+        :return: number of days it would take to travel current route
+        """
         total = 0
         current_fuel: int = self.autonomy
         refuelling_day: int = 1
@@ -141,20 +151,35 @@ class PredictionService:
         return total
 
     @staticmethod
-    def _get_lowest_capture_count(hunter_schedule, optimized_paths):
-        best_current = None
+    def _get_lowest_capture_count(hunter_schedule: List, optimized_paths: List) -> int:
+        """
+        For a collection of paths, returns the lowest number of capture attempts across the paths.
+        :param hunter_schedule: the list containing the bounty hunter schedule
+        :param optimized_paths: the list of paths
+        :return: the lowest number of capture attempts across the paths
+        """
+        lowest_capture_count: int = None
         for path in optimized_paths:
             capture_attempt_count = PredictionService._get_capture_attempt_count(
                 route=path, hunter_schedule=hunter_schedule
             )
-            if best_current == 0:
+            if lowest_capture_count == 0:
                 break
-            if best_current is None or capture_attempt_count < best_current:
-                best_current = capture_attempt_count
-        return best_current
+            if (
+                lowest_capture_count is None
+                or capture_attempt_count < lowest_capture_count
+            ):
+                lowest_capture_count = capture_attempt_count
+        return lowest_capture_count
 
     @staticmethod
     def _adjust_for_fuelling_needs(route: List, autonomy: int) -> List:
+        """
+        Adjusts the provided route for fuelling needs, i.e. adds required fuelling stops to the route.
+        :param route: the route
+        :param autonomy: how long the ship can go without refuelling
+        :return: the route adjusted for fuelling needs
+        """
         new_route: List = []
         deviation: int = 0
         last_item = route[-1]
@@ -175,7 +200,7 @@ class PredictionService:
         return new_route
 
     @staticmethod
-    def _get_capture_attempt_count(route: List, hunter_schedule: List):
+    def _get_capture_attempt_count(route: List, hunter_schedule: List) -> int:
         """
         Gets the number of capture attempts/overlapping stops between the shortest list and the hunter schedule.
         :param route: path from departure planet to destination planet
@@ -218,7 +243,16 @@ class PredictionService:
         return result
 
     @staticmethod
-    def _can_avoid_bounty_hunters_set(stop: Tuple, delay_budget: int, hunter_schedule):
+    def _can_avoid_bounty_hunters_set(
+        stop: Tuple, delay_budget: int, hunter_schedule
+    ) -> bool:
+        """
+        Checks if it is possible to avoid bounty hunters given their schedule and the time limit.
+        :param stop: the current stop/planet
+        :param delay_budget: the delay budget, i.e. difference between earliest arrival to destination and the time limit
+        :param hunter_schedule: the bounty hunter schedule
+        :return: if it is possible to avoid bounty hunters
+        """
         for day in range(delay_budget + 1):
             if (stop[0], stop[1] + day) not in hunter_schedule:
                 return True
@@ -226,6 +260,13 @@ class PredictionService:
 
     @staticmethod
     def _optimize_path(path: List, hunter_schedule: List, countdown: int) -> List:
+        """
+        Optimizes the travel path to minimise the number of potential capture attempts by bounty hunters.
+        :param path: the provided path to be optimized
+        :param hunter_schedule: the bounty hunter schedule
+        :param countdown: the time limit
+        :return: the optimized travel path
+        """
         arrival_day: int = path[-1][1]
         delay_budget: int = countdown - arrival_day
         waiting_day = 1
