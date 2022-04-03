@@ -110,4 +110,6 @@ the luxury of more time:
   from the Poetry toml file on commit, as the hooks I found were flawed and again this was not a priority.
 - Depending on the registry that you deploy your Artifacts to, there are always interesting things to set up like
   continuous deep recursive scanning, signing and verifying the signed Docker images etc.
+- I could also add a [docker-slim](https://github.com/docker-slim/docker-slim) step to the CI/CD to minimize the
+  image/potential attack surface. Additionally, I could/should update the Docker image to use a leaner base image.
 

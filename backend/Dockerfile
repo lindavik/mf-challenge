@@ -4,7 +4,7 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 
 WORKDIR /app
 
-RUN pip install poetry
+RUN pip install --no-cache-dir poetry==1.1.13
 
 COPY . .
 
