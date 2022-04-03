@@ -25,6 +25,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
+          tags: lviksne2/mf-backend:latest
 #
 #      - name: Build and push backend
 #        uses: docker/build-push-action@v2
