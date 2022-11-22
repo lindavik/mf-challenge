@@ -9,7 +9,7 @@ python = "^3.8"
 streamlit = "^1.8.0"
 click = "8.0.4"
 watchdog = "^2.1.7"
-Pillow = "^9.0.1"
+Pillow = "^9.3.0"
 requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
